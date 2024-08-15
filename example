@@ -1,0 +1,81 @@
+npx sequelize db:create
+
+MODELS / MIGRATIONS
+
+npx sequelize-cli model:generate --name Image --attributes id:uuid,url:string,filename:string --force
+
+npx sequelize-cli model:generate --name User --attributes id:uuid,firstName:string,lastName:string,email:string,dni:string,password:string,enabled:boolean,userType:string,paymentType:string,lastPaymentDate:date,quotationCount:integer --force
+
+npx sequelize-cli model:generate --name Supplier --attributes id:uuid,name:string,ruc:string,email:string,password:string,enabled:boolean,adminAuthorizedId:uuid --force
+
+npx sequelize-cli model:generate --name Category --attributes id:uuid,name:string --force
+
+npx sequelize-cli model:generate --name Subcategory --attributes id:uuid,name:string,categoryId:uuid --force
+
+npx sequelize-cli model:generate --name Product --attributes id:uuid,name:string,description:text,photo:string,subcategoryId:uuid,status:string,supplierId:uuid,adminAuthorizedId:uuid,creationDate:date,authorizationDate:date --force
+
+npx sequelize-cli model:generate --name Feature --attributes id:uuid,name:string --force
+
+npx sequelize-cli model:generate --name ProductFeature --attributes id:uuid,productId:uuid,featureId:uuid,value:string --force
+
+npx sequelize-cli model:generate --name SupplierProduct --attributes id:uuid,supplierId:uuid,productId:uuid,price:decimal,updateDate:date,adminAuthorizedId:uuid,status:string --force
+
+npx sequelize-cli model:generate --name Quotation --attributes id:uuid,userId:uuid,name:string,date:date,type:string,price:decimal,status:string,quotationCount:integer --force
+
+npx sequelize-cli model:generate --name QuotationProduct --attributes id:uuid,quotationId:uuid,productId:uuid,quantity:integer --force
+
+npx sequelize-cli model:generate --name QuotationSupplierProduct --attributes id:uuid,quotationProductId:uuid,supplierId:uuid,unitPrice:decimal --force
+
+npx sequelize-cli model:generate --name Payment --attributes id:uuid,userId:uuid,amount:decimal,date:date,paymentType:string,adminAuthorizedId:uuid --force
+
+npx sequelize-cli model:generate --name ProductHistory --attributes id:uuid,productId:uuid,supplierId:uuid,action:string,previousPrice:decimal,newPrice:decimal,date:date,adminId:uuid,description:text --force
+
+npx sequelize-cli model:generate --name UserSupplierHistory --attributes id:uuid,entityType:string,entityId:uuid,action:string,date:date,adminId:uuid --force
+
+
+
+-----
+npx sequelize-cli db:migrate
+npx sequelize-cli db:migrate:undo
+npx sequelize-cli db:migrate:undo:all --to XXXXXXXXXXXXXX-create-posts.js
+
+
+SEEDERS
+
+npx sequelize-cli seed:generate --name demo-image
+npx sequelize-cli seed:generate --name demo-user
+npx sequelize-cli seed:generate --name demo-supplier
+npx sequelize-cli seed:generate --name demo-category
+npx sequelize-cli seed:generate --name demo-subcategory
+npx sequelize-cli seed:generate --name demo-product
+npx sequelize-cli seed:generate --name demo-feature
+npx sequelize-cli seed:generate --name demo-product-feature
+npx sequelize-cli seed:generate --name demo-supplier-product
+npx sequelize-cli seed:generate --name demo-quotation
+npx sequelize-cli seed:generate --name demo-quotation-product
+npx sequelize-cli seed:generate --name demo-quotation-supplier-product
+npx sequelize-cli seed:generate --name demo-payment
+npx sequelize-cli seed:generate --name demo-product-history
+npx sequelize-cli seed:generate --name demo-user-supplier-history
+
+
+
+
+
+
+
+SEED
+npx sequelize-cli db:seed:all
+UNSED SEED NAME
+npx sequelize-cli db:seed:undo --seed name-of-seed-as-in-data
+UNSED SEED LAST
+npx sequelize-cli db:seed:undo
+UNSER SEED ALL
+npx sequelize-cli db:seed:undo:all
+
+
+
+-------
+npx sequelize-cli db:migrate:undo:all
+npx sequelize-cli db:migrate
+npx sequelize-cli db:seed:all

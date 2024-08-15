@@ -1,0 +1,10 @@
+const express = require("express");
+const router = express.Router();
+const Producto = require("../../controllers/guest/producto");
+
+router.get(
+  "/getproductdetailsbysupplierproductslug/:supplierProductSlug",
+  Producto.getProductDetailsBySupplierProductSlug
+);
+
+module.exports = router;
