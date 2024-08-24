@@ -13,4 +13,6 @@ router.get("/quotationdatails/:quotationId", Cotizaciones.getQuotationDetails);
 
 router.get("/:id/quotationcount", Cotizaciones.getQuotationCountById);
 
+router.put("/quotationdatails/:quotationId", Cotizaciones.updateQuotationName);
+
 module.exports = router;

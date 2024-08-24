@@ -1,7 +1,7 @@
 const Category = require("../../models/category");
 const { Sequelize, Op, fn, col, literal } = require("sequelize");
 const config = require("../../../config/config");
-const { Quotation } = require("../../models/quotation");
+const Quotation = require("../../models/quotation");
 const User = require("../../models/user");
 
 const sequelize = new Sequelize(config.development);
@@ -10,29 +10,35 @@ const { v4: uuidv4 } = require("uuid");
 const getQuotationsByUser = async (req, res) => {
   try {
     const { userId } = req.params;
-    const result = await sequelize.query(
-      `
-        SELECT
-          q.id,
-          q.name,
-          q.type,
-          q.price,
-          q.status,
-          q."quotationCount",
-          q."quotationNumber",
-          q."createdAt",
-          q."updatedAt"
-        FROM
-          public."Quotations" q
-        WHERE
-          q."userId" = '${userId}'
-        `,
-      { type: sequelize.QueryTypes.SELECT }
-    );
+
+    // Consulta utilizando el ORM de Sequelize
+    const quotations = await Quotation.findAll({
+      where: { userId },
+      attributes: [
+        "id",
+        "name",
+        "type",
+        "price",
+        "status",
+        "quotationCount",
+        "quotationNumber",
+        [
+          sequelize.fn(
+            "to_char",
+            sequelize.col("createdAt"),
+            "DD Mon YYYY HH24:MI:SS"
+          ),
+          "date",
+        ], // Formato de fecha
+        "createdAt",
+        "updatedAt",
+      ],
+      order: [["createdAt", "DESC"]], // Ordenar por fecha de creación en orden descendente
+    });
 
     const response = {
-      count: result.length,
-      data: result,
+      count: quotations.length,
+      data: quotations,
     };
 
     res.json(response);
@@ -41,6 +47,7 @@ const getQuotationsByUser = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
 const getQuotationDetails = async (req, res) => {
   try {
     const { quotationId } = req.params;
@@ -92,6 +99,7 @@ const getQuotationDetails = async (req, res) => {
 
     const response = {
       count: result.length,
+      name: result.length > 0 ? result[0].quotationName : "", // Extract quotation name
       data: result,
     };
 
@@ -101,6 +109,7 @@ const getQuotationDetails = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
 const getQuotationCountById = async (req, res) => {
   const userId = req.params.id; // Obtener el ID del usuario de los parámetros de la ruta
 
@@ -120,8 +129,31 @@ const getQuotationCountById = async (req, res) => {
     res.status(500).json({ error: "Error al obtener quotationCount por ID" });
   }
 };
+
+const updateQuotationName = async (req, res) => {
+  try {
+    const { quotationId } = req.params;
+    const { name } = req.body;
+
+    const updatedQuotation = await Quotation.update(
+      { name },
+      { where: { id: quotationId } }
+    );
+
+    if (updatedQuotation[0] === 0) {
+      return res.status(404).json({ error: "Quotation not found" });
+    }
+
+    res.json({ message: "Quotation name updated successfully" });
+  } catch (error) {
+    console.error("Error updating quotation name:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
 module.exports = {
   getQuotationsByUser,
   getQuotationDetails,
   getQuotationCountById,
+  updateQuotationName,
 };
