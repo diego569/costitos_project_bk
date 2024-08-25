@@ -73,7 +73,9 @@ const getQuotationDetails = async (req, res) => {
           s.ruc AS "supplierRuc",
           s."fiscalAddress" AS "supplierAddress",
           s.cellphone AS "supplierPhone",
-          qsp."unitPrice" AS "supplierUnitPrice"
+          qsp."unitPrice" AS "supplierUnitPrice",
+          q."createdAt",
+          to_char(q."createdAt", 'DD Mon YYYY HH24:MI:SS') AS "formattedDate" -- Fecha formateada
         FROM
           public."Quotations" q
         JOIN
@@ -99,7 +101,8 @@ const getQuotationDetails = async (req, res) => {
 
     const response = {
       count: result.length,
-      name: result.length > 0 ? result[0].quotationName : "", // Extract quotation name
+      name: result.length > 0 ? result[0].quotationName : "",
+      formattedDate: result.length > 0 ? result[0].formattedDate : "",
       data: result,
     };
 
@@ -109,7 +112,6 @@ const getQuotationDetails = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
-
 const getQuotationCountById = async (req, res) => {
   const userId = req.params.id; // Obtener el ID del usuario de los parámetros de la ruta
 
