@@ -5,15 +5,24 @@ const slugify = require("slugify");
 
 module.exports = {
   async up(queryInterface, Sequelize) {
-    // Función para generar el slug
     const generateSlug = (name) => {
       return slugify(name, { lower: true });
     };
 
-    // Generar categorías
     const generateCategories = async () => {
       const categories = [];
-      for (let i = 0; i < 25; i++) {
+
+      const otherCategory = {
+        id: uuidv4(),
+        name: "Otros",
+        slug: generateSlug("Otros"),
+        photo: fakerES.image.url(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      categories.push(otherCategory);
+
+      for (let i = 0; i < 24; i++) {
         const categoryName = fakerES.commerce.department();
         categories.push({
           id: uuidv4(),

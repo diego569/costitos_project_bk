@@ -6,22 +6,39 @@ const slugify = require("slugify");
 module.exports = {
   async up(queryInterface, Sequelize) {
     const categories = await queryInterface.sequelize.query(
-      'SELECT id FROM "Categories";'
+      'SELECT id, name FROM "Categories";'
     );
 
     const categoryRows = categories[0];
 
-    // Función para generar el slug
+    const otherCategory = categoryRows.find(
+      (category) => category.name === "Otros"
+    );
+
     const generateSlug = (name) => {
       return slugify(name, { lower: true });
     };
 
-    // Función para generar subcategorías aleatorias
     const generateSubcategories = async () => {
       const subcategories = [];
-      for (let i = 0; i < 250; i++) {
+
+      const otherSubcategory = {
+        id: uuidv4(),
+        name: "Otros",
+        slug: generateSlug("Otros"),
+        photo: fakerES.image.url(),
+        categoryId: otherCategory.id,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      subcategories.push(otherSubcategory);
+
+      for (let i = 0; i < 249; i++) {
         const randomCategory =
           categoryRows[Math.floor(Math.random() * categoryRows.length)];
+
+        if (randomCategory.name === "Otros") continue;
+
         const subCategoryName = fakerES.commerce.productName();
         subcategories.push({
           id: uuidv4(),
@@ -36,13 +53,11 @@ module.exports = {
       return subcategories;
     };
 
-    // Generar subcategorías aleatorias y insertar en la base de datos
     const subcategoriesData = await generateSubcategories();
     await queryInterface.bulkInsert("Subcategories", subcategoriesData);
   },
 
   async down(queryInterface, Sequelize) {
-    // Eliminar todas las subcategorías
     await queryInterface.bulkDelete("Subcategories", null, {});
   },
 };

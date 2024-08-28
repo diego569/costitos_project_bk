@@ -1,5 +1,4 @@
-const Category = require("../../models/category");
-const { Sequelize, Op, fn, col, literal } = require("sequelize");
+const { Sequelize, Op } = require("sequelize");
 const config = require("../../../config/config");
 
 const sequelize = new Sequelize(config.development);
@@ -24,6 +23,8 @@ const getCategoriesBySupplier = async (req, res) => {
           public."Categories" c ON sc."categoryId" = c.id
         WHERE
           sp."supplierId" = :supplierId
+        ORDER BY
+          c.name ASC
         `,
       {
         type: sequelize.QueryTypes.SELECT,
@@ -45,6 +46,7 @@ const getCategoriesBySupplier = async (req, res) => {
     res.status(500).json({ error: "Error interno del servidor" });
   }
 };
+
 const getSubcategoriesBySupplierAndCategory = async (req, res) => {
   const { supplierId, categoryId } = req.params;
 
@@ -65,6 +67,8 @@ const getSubcategoriesBySupplierAndCategory = async (req, res) => {
       WHERE
         sp."supplierId" = :supplierId
         AND s."categoryId" = :categoryId
+      ORDER BY
+        s.name ASC
       `,
       {
         type: sequelize.QueryTypes.SELECT,
@@ -96,7 +100,8 @@ const getProductsBySupplier = async (req, res) => {
         p.name,
         p.description,
         i.url AS photo,
-        sp.slug AS product_slug
+        sp.slug AS product_slug,
+        sp."createdAt"
       FROM
         public."SupplierProducts" sp
       JOIN
@@ -105,6 +110,8 @@ const getProductsBySupplier = async (req, res) => {
         public."Images" i ON p."imageId" = i.id
       WHERE
         sp."supplierId" = :supplierId
+      ORDER BY
+        sp."createdAt" DESC
       `,
       {
         type: sequelize.QueryTypes.SELECT,
@@ -121,6 +128,7 @@ const getProductsBySupplier = async (req, res) => {
     res.status(500).json({ error: "Error interno del servidor" });
   }
 };
+
 const getProductsBySupplierAndCategory = async (req, res) => {
   const { supplierId, categoryId } = req.params;
 
@@ -135,7 +143,8 @@ const getProductsBySupplierAndCategory = async (req, res) => {
         p.name,
         p.description,
         i.url AS photo,
-        sp.slug AS product_slug
+        sp.slug AS product_slug,
+        sp."createdAt"
       FROM
         public."SupplierProducts" sp
       JOIN
@@ -147,6 +156,8 @@ const getProductsBySupplierAndCategory = async (req, res) => {
       WHERE
         sp."supplierId" = :supplierId
         AND s."categoryId" = :categoryId
+      ORDER BY
+        sp."createdAt" DESC
       `,
       {
         type: sequelize.QueryTypes.SELECT,
@@ -178,7 +189,8 @@ const getProductsBySupplierAndSubcategory = async (req, res) => {
         p.name,
         p.description,
         i.url AS photo,
-        sp.slug AS product_slug
+        sp.slug AS product_slug,
+        sp."createdAt"
       FROM
         public."SupplierProducts" sp
       JOIN
@@ -188,6 +200,8 @@ const getProductsBySupplierAndSubcategory = async (req, res) => {
       WHERE
         sp."supplierId" = :supplierId
         AND p."subcategoryId" = :subcategoryId
+      ORDER BY
+        sp."createdAt" DESC
       `,
       {
         type: sequelize.QueryTypes.SELECT,
@@ -220,7 +234,8 @@ const searchProductsBySupplier = async (req, res) => {
         p.name,
         p.description,
         i.url AS photo,
-        sp.slug AS product_slug
+        sp.slug AS product_slug,
+        sp."createdAt"
       FROM
         public."SupplierProducts" sp
       JOIN
@@ -230,6 +245,8 @@ const searchProductsBySupplier = async (req, res) => {
       WHERE
         sp."supplierId" = :supplierId
         AND (p.name ILIKE :query OR p.description ILIKE :query)
+      ORDER BY
+        sp."createdAt" DESC
       `,
       {
         type: sequelize.QueryTypes.SELECT,
@@ -262,7 +279,8 @@ const searchProductsBySupplierAndCategory = async (req, res) => {
         p.name,
         p.description,
         i.url AS photo,
-        sp.slug AS product_slug
+        sp.slug AS product_slug,
+        sp."createdAt"
       FROM
         public."SupplierProducts" sp
       JOIN
@@ -275,6 +293,8 @@ const searchProductsBySupplierAndCategory = async (req, res) => {
         sp."supplierId" = :supplierId
         AND s."categoryId" = :categoryId
         AND (p.name ILIKE :query OR p.description ILIKE :query)
+      ORDER BY
+        sp."createdAt" DESC
       `,
       {
         type: sequelize.QueryTypes.SELECT,
@@ -282,26 +302,16 @@ const searchProductsBySupplierAndCategory = async (req, res) => {
       }
     );
 
-    const formattedProducts = products.map((product) => ({
-      supplier_product_id: product.supplier_product_id,
-      price: product.price,
-      unitOfMeasure: product.unitOfMeasure,
-      product_id: product.product_id,
-      name: product.name,
-      description: product.description,
-      photo: product.photo,
-      product_slug: product.product_slug,
-    }));
-
     res.status(200).json({
-      data: formattedProducts,
-      count: formattedProducts.length,
+      data: products,
+      count: products.length,
     });
   } catch (error) {
     console.error("Error al buscar productos:", error);
     res.status(500).json({ error: "Error interno del servidor" });
   }
 };
+
 const searchProductsBySupplierAndSubcategory = async (req, res) => {
   const { supplierId, subcategoryId } = req.params;
   const { query } = req.query;
@@ -317,7 +327,8 @@ const searchProductsBySupplierAndSubcategory = async (req, res) => {
         p.name,
         p.description,
         i.url AS photo,
-        sp.slug AS product_slug
+        sp.slug AS product_slug,
+        sp."createdAt"
       FROM
         public."SupplierProducts" sp
       JOIN
@@ -328,6 +339,8 @@ const searchProductsBySupplierAndSubcategory = async (req, res) => {
         sp."supplierId" = :supplierId
         AND p."subcategoryId" = :subcategoryId
         AND (p.name ILIKE :query OR p.description ILIKE :query)
+      ORDER BY
+        sp."createdAt" DESC
       `,
       {
         type: sequelize.QueryTypes.SELECT,
@@ -345,14 +358,13 @@ const searchProductsBySupplierAndSubcategory = async (req, res) => {
   }
 };
 
-//
-
 const getCategories = async (req, res) => {
   try {
     const categories = await sequelize.query(
       `
       SELECT id, name
       FROM public."Categories"
+      ORDER BY name ASC
       `,
       {
         type: sequelize.QueryTypes.SELECT,
@@ -365,6 +377,7 @@ const getCategories = async (req, res) => {
     res.status(500).json({ error: "Error interno del servidor" });
   }
 };
+
 const getSubcategoriesByCategoryId = async (req, res) => {
   const { categoryId } = req.params;
 
@@ -374,6 +387,7 @@ const getSubcategoriesByCategoryId = async (req, res) => {
       SELECT id, name
       FROM public."Subcategories"
       WHERE "categoryId" = :categoryId
+      ORDER BY name ASC
       `,
       {
         type: sequelize.QueryTypes.SELECT,
@@ -387,6 +401,7 @@ const getSubcategoriesByCategoryId = async (req, res) => {
     res.status(500).json({ error: "Error interno del servidor" });
   }
 };
+
 module.exports = {
   getCategoriesBySupplier,
   getSubcategoriesBySupplierAndCategory,
