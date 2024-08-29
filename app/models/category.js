@@ -2,7 +2,6 @@ const { Sequelize, DataTypes } = require("sequelize");
 const config = require("../../config/config");
 const sequelize = new Sequelize(config.development);
 
-// Importa el modelo Subcategory
 const Subcategory = require("./subcategory");
 
 const Category = sequelize.define(

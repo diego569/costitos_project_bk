@@ -48,4 +48,8 @@ router.get(
   "/getsubcategoriesbycategory/:categoryId",
   Misproductos.getSubcategoriesByCategoryId
 );
+
+router.post("/categories", Misproductos.createCategory);
+router.post("/subcategories", Misproductos.createSubcategory);
+
 module.exports = router;
