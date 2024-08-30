@@ -403,6 +403,7 @@ const getSubcategoriesByCategoryId = async (req, res) => {
 };
 
 const Category = require("../../models/category");
+const Subcategory = require("../../models/subcategory");
 const slugify = require("slugify");
 
 const createCategory = async (req, res) => {
@@ -416,13 +417,21 @@ const createCategory = async (req, res) => {
       slug,
     });
 
-    res.status(201).json({ category: newCategory });
+    const otherSubcategory = await Subcategory.create({
+      name: "Otros",
+      slug: slugify("Otros", { lower: true }),
+      categoryId: newCategory.id,
+    });
+
+    res.status(201).json({
+      category: newCategory,
+      subcategory: otherSubcategory,
+    });
   } catch (error) {
     console.error("Error creating category:", error);
     res.status(500).json({ error: "Error interno del servidor" });
   }
 };
-const Subcategory = require("../../models/subcategory");
 
 const createSubcategory = async (req, res) => {
   const { name, categoryId } = req.body;
@@ -442,6 +451,7 @@ const createSubcategory = async (req, res) => {
     res.status(500).json({ error: "Error interno del servidor" });
   }
 };
+
 module.exports = {
   getCategoriesBySupplier,
   getSubcategoriesBySupplierAndCategory,
