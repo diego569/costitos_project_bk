@@ -19,4 +19,6 @@ router.get(
   Categoria.getMostQuotedProductsByCategory
 );
 
+router.get("/getcategorynamebyslug/:slug", Categoria.getCategoryNameBySlug);
+
 module.exports = router;

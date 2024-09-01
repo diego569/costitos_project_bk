@@ -6,8 +6,10 @@ router.get(
   "/getrecentproductsbysubcategory/:subcategorySlug",
   Subcategoria.getRecentProductsBySubcategory
 );
+
 router.get(
   "/searchrecentproductsbysubcategory/:subcategorySlug",
   Subcategoria.searchRecentProductsBySubcategory
 );
+
 module.exports = router;

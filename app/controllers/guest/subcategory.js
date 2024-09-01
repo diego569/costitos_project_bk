@@ -175,8 +175,52 @@ const getMostQuotedProductsBySubcategory = async (req, res) => {
   }
 };
 
+const getSubcategoryDetailsBySlug = async (req, res) => {
+  const { slug } = req.params;
+
+  try {
+    const [subcategoryDetails] = await sequelize.query(
+      `
+      SELECT 
+        s.name AS subcategory_name,
+        s.slug AS subcategory_slug,
+        c.name AS category_name,
+        c.slug AS category_slug
+      FROM 
+        public."Subcategories" s
+      JOIN 
+        public."Categories" c ON s."categoryId" = c.id
+      WHERE 
+        s.slug = :slug
+      `,
+      {
+        type: sequelize.QueryTypes.SELECT,
+        replacements: { slug },
+      }
+    );
+
+    if (!subcategoryDetails) {
+      return res.status(404).json({ error: "Subcategoría no encontrada" });
+    }
+
+    res.status(200).json({
+      subcategory: {
+        name: subcategoryDetails.subcategory_name,
+        slug: subcategoryDetails.subcategory_slug,
+      },
+      category: {
+        name: subcategoryDetails.category_name,
+        slug: subcategoryDetails.category_slug,
+      },
+    });
+  } catch (error) {
+    console.error("Error al obtener los detalles de la subcategoría:", error);
+    res.status(500).json({ error: "Error interno del servidor" });
+  }
+};
 module.exports = {
   searchSupplierProductsBySubcategory,
   getRecentSupplierProductsBySubcategory,
   getMostQuotedProductsBySubcategory,
+  getSubcategoryDetailsBySlug,
 };

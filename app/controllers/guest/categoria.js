@@ -212,10 +212,35 @@ const getMostQuotedProductsByCategory = async (req, res) => {
     res.status(500).json({ error: "Error interno del servidor" });
   }
 };
+const getCategoryNameBySlug = async (req, res) => {
+  try {
+    const { slug } = req.params;
 
+    // Busca la categoría por su slug
+    const category = await Category.findOne({
+      where: { slug },
+      attributes: ["name", "slug"], // Atributos que queremos obtener
+    });
+
+    if (!category) {
+      return res.status(404).json({ error: "Categoría no encontrada" });
+    }
+
+    res.status(200).json({
+      category: {
+        name: category.name,
+        slug: category.slug,
+      },
+    });
+  } catch (error) {
+    console.error("Error al obtener la categoría:", error);
+    res.status(500).json({ error: "Error interno del servidor" });
+  }
+};
 module.exports = {
   searchSupplierProductsByCategory,
   getSubcategoriesByCategorySlug,
   getRecentSupplierProductsByCategory,
   getMostQuotedProductsByCategory,
+  getCategoryNameBySlug,
 };

@@ -14,5 +14,9 @@ router.get(
   "/getmostquotedproductsbysubcategory/:subcategorySlug",
   Subcategory.getMostQuotedProductsBySubcategory
 );
+router.get(
+  "/getsubcategorydetailsbyslug/:slug",
+  Subcategory.getSubcategoryDetailsBySlug
+);
 
 module.exports = router;
