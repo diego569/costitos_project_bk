@@ -1,10 +1,10 @@
 const { Sequelize, DataTypes } = require("sequelize");
 const config = require("../../config/config");
 const sequelize = new Sequelize(config.development);
-const Image = require("./Image");
-const Subcategory = require("./Subcategory");
-const Supplier = require("./Supplier");
-const User = require("./User");
+const Image = require("./image");
+const Subcategory = require("./subcategory");
+const Supplier = require("./supplier");
+const User = require("./user");
 
 const Product = sequelize.define(
   "Product",
