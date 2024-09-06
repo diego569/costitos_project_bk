@@ -1,9 +1,9 @@
 const { Sequelize, DataTypes } = require("sequelize");
 const config = require("../../config/config");
 const sequelize = new Sequelize(config.development);
-const Supplier = require("./Supplier");
-const Product = require("./Product");
-const User = require("./User");
+const Supplier = require("./supplier");
+const Product = require("./product");
+const User = require("./user");
 
 const SupplierProduct = sequelize.define(
   "SupplierProduct",
