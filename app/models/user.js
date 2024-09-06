@@ -1,7 +1,6 @@
 const { Sequelize, DataTypes } = require("sequelize");
 const config = require("../../config/config");
 const sequelize = new Sequelize(config.development);
-const Image = require("./Image");
 
 const User = sequelize.define(
   "User",
@@ -82,7 +81,5 @@ const User = sequelize.define(
     tableName: "Users",
   }
 );
-
-User.belongsTo(Image, { foreignKey: "imageId", as: "image" });
 
 module.exports = User;
