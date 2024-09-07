@@ -21,11 +21,9 @@ const registerUser = async (req, res) => {
   } = req.body;
 
   if (!terms) {
-    return res
-      .status(400)
-      .json({
-        message: "Debe aceptar los términos y condiciones para continuar.",
-      });
+    return res.status(400).json({
+      message: "Debe aceptar los términos y condiciones para continuar.",
+    });
   }
 
   try {
@@ -84,6 +82,7 @@ const registerUser = async (req, res) => {
     res.status(500).json({ error: "Error al registrar usuario/proveedor" });
   }
 };
+
 module.exports = {
   registerUser,
 };

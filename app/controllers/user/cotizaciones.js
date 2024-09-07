@@ -112,6 +112,7 @@ const getQuotationDetails = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
 const getQuotationCountById = async (req, res) => {
   const userId = req.params.id; // Obtener el ID del usuario de los parámetros de la ruta
 

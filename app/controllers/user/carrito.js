@@ -1,30 +1,49 @@
 const Category = require("../../models/category");
 const { Sequelize, Op, fn, col, literal } = require("sequelize");
 const config = require("../../../config/config");
+const User = require("../../models/user");
 
 const sequelize = new Sequelize(config.development);
 const { v4: uuidv4 } = require("uuid");
 
 const createQuotation = async (req, res) => {
-  const { userId, name, type, status, quotationCount } = req.body;
+  const { userId, name, type, status } = req.body;
+
   try {
-    // Obtener el número más alto de cotización actual
+    const user = await User.findOne({
+      where: { id: userId },
+      attributes: ["quotationCount"],
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: "Usuario no encontrado." });
+    }
+
+    const quotationCount = user.quotationCount;
+
+    if (quotationCount === 0) {
+      return res
+        .status(400)
+        .json({ error: "No tiene suficientes cotizaciones disponibles." });
+    }
+
     const maxQuotationNumberResult = await sequelize.query(
       `SELECT COALESCE(MAX("quotationNumber"), 0) AS maxQuotationNumber FROM "Quotations"`,
       {
         type: sequelize.QueryTypes.SELECT,
       }
     );
+
     const maxQuotationNumber = maxQuotationNumberResult[0].maxquotationnumber;
     const newQuotationNumber = maxQuotationNumber + 1;
-    // Insertar la nueva cotización
+
     const newQuotationId = uuidv4();
     const [insertedQuotation] = await sequelize.query(
       `
-        INSERT INTO "Quotations" (id, "userId", name, type, price, status, "quotationCount", "quotationNumber", "createdAt", "updatedAt")
-        VALUES (:id, :userId, :name, :type, 0, :status, :quotationCount, :quotationNumber, NOW(), NOW())
+        INSERT INTO "Quotations" (id, "userId", name, type, price, status, "quotationNumber", "createdAt", "updatedAt")
+        VALUES (:id, :userId, :name, :type, 0, :status, :quotationNumber, NOW(), NOW())
         RETURNING id, "quotationNumber";
-        `,
+      `,
       {
         type: sequelize.QueryTypes.INSERT,
         replacements: {
@@ -33,10 +52,14 @@ const createQuotation = async (req, res) => {
           name,
           type,
           status,
-          quotationCount,
           quotationNumber: newQuotationNumber,
         },
       }
+    );
+
+    await User.update(
+      { quotationCount: quotationCount - 1 },
+      { where: { id: userId } }
     );
 
     res.status(201).json({
