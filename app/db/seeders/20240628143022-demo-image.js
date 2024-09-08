@@ -8,7 +8,7 @@ module.exports = {
     // Function to generate images data
     const generateImages = async () => {
       const images = [];
-      for (let i = 0; i < 4500; i++) {
+      for (let i = 0; i < 500; i++) {
         images.push({
           id: uuidv4(),
           url: fakerES.image.url(),

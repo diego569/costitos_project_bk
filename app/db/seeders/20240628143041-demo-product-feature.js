@@ -14,39 +14,25 @@ module.exports = {
     const productRows = products[0];
     const featureRows = features[0];
 
-    await queryInterface.bulkInsert("ProductFeatures", [
-      {
-        id: uuidv4(),
-        productId: productRows[0].id,
-        featureId: featureRows[0].id,
-        value: "2kg",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
-        id: uuidv4(),
-        productId: productRows[1].id,
-        featureId: featureRows[1].id,
-        value: "50x50x70cm",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-    ]);
-
     const generateProductFeatures = async () => {
       const productFeatures = [];
-      for (let i = 0; i < 100; i++) {
-        const randomProductId =
-          productRows[Math.floor(Math.random() * productRows.length)].id;
-        const randomFeatureId =
-          featureRows[Math.floor(Math.random() * featureRows.length)].id;
-        productFeatures.push({
-          id: uuidv4(),
-          productId: randomProductId,
-          featureId: randomFeatureId,
-          value: fakerES.commerce.productAdjective(),
-          createdAt: new Date(),
-          updatedAt: new Date(),
+      for (let i = 0; i < productRows.length; i++) {
+        // Para cada producto, asignar entre 5 y 10 características
+        const numFeatures = fakerES.datatype.number({ min: 5, max: 10 });
+        const randomFeatures = fakerES.helpers.arrayElements(
+          featureRows,
+          numFeatures
+        );
+
+        randomFeatures.forEach((feature) => {
+          productFeatures.push({
+            id: uuidv4(),
+            productId: productRows[i].id,
+            featureId: feature.id,
+            value: fakerES.commerce.productAdjective(),
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          });
         });
       }
       return productFeatures;
@@ -55,6 +41,7 @@ module.exports = {
     const productFeaturesData = await generateProductFeatures();
     await queryInterface.bulkInsert("ProductFeatures", productFeaturesData, {});
   },
+
   async down(queryInterface, Sequelize) {
     await queryInterface.bulkDelete("ProductFeatures", null, {});
   },

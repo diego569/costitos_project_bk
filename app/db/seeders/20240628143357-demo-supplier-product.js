@@ -15,27 +15,24 @@ module.exports = {
     const productRows = products[0];
     const supplierRows = suppliers[0];
 
-    // Función para generar el slug
     const generateSlug = (name, unitOfMeasure, supplierId) => {
       const slugName = `${name} ${unitOfMeasure} ${supplierId}`;
       return slugify(slugName, { lower: true, strict: true });
     };
 
-    // Función para generar una fecha aleatoria entre dos fechas
     const randomDate = (start, end) => {
       return new Date(
         start.getTime() + Math.random() * (end.getTime() - start.getTime())
       );
     };
 
-    // Función para generar supplierProducts aleatorios
     const generateSupplierProducts = async () => {
       const supplierProducts = [];
       const multipleMeasureProducts = new Set();
 
       for (const supplier of supplierRows) {
-        // Asegúrate de que cada proveedor tenga entre 300 y 500 productos
-        const numberOfProducts = fakerES.number.int({ min: 490, max: 500 });
+        // Generar entre 30 y 80 productos por proveedor
+        const numberOfProducts = fakerES.number.int({ min: 30, max: 80 });
 
         for (let i = 0; i < numberOfProducts; i++) {
           const randomProduct =
@@ -74,7 +71,7 @@ module.exports = {
         }
       }
 
-      // Agregar productos con 2 o 3 medidas diferentes
+      // Para algunos productos, añadir más versiones con diferentes medidas
       multipleMeasureProducts.forEach((productId) => {
         const product = productRows.find((p) => p.id === productId);
         const numberOfMeasures = fakerES.helpers.arrayElement([2, 3]);

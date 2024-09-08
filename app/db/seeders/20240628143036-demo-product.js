@@ -21,10 +21,13 @@ module.exports = {
 
     const generateProducts = async () => {
       const products = [];
-      for (let i = 0; i < 500; i++) {
+      for (let i = 0; i < 200; i++) {
         const randomSubcategoryId =
           subcategoryRows[Math.floor(Math.random() * subcategoryRows.length)]
             .id;
+
+        const randomImageId =
+          imageRows[Math.floor(Math.random() * imageRows.length)].id;
 
         const productName = fakerES.commerce.productName();
         products.push({
@@ -32,7 +35,7 @@ module.exports = {
           name: productName,
           slug: generateSlug(productName),
           description: fakerES.commerce.productDescription(),
-          imageId: imageRows[i].id,
+          imageId: randomImageId,
           subcategoryId: randomSubcategoryId,
           status: fakerES.helpers.arrayElement(["available", "unavailable"]),
           supplierId: null,

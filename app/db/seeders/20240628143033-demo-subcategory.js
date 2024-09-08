@@ -33,28 +33,30 @@ module.exports = {
       };
       subcategories.push(otherSubcategory);
 
-      for (let i = 0; i < 249; i++) {
+      for (let i = 0; i < 15; i++) {
         const randomCategory =
           categoryRows[Math.floor(Math.random() * categoryRows.length)];
 
-        if (randomCategory.name === "Otros") continue;
+        const numberOfSubcategories = fakerES.number.int({ min: 1, max: 6 });
 
-        const subCategoryName = fakerES.commerce.productName();
-        subcategories.push({
-          id: uuidv4(),
-          name: subCategoryName,
-          slug: generateSlug(subCategoryName),
-          photo: fakerES.image.url(),
-          categoryId: randomCategory.id,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        });
+        for (let j = 0; j < numberOfSubcategories; j++) {
+          const subCategoryName = fakerES.commerce.productName();
+          subcategories.push({
+            id: uuidv4(),
+            name: subCategoryName,
+            slug: generateSlug(subCategoryName),
+            photo: fakerES.image.url(),
+            categoryId: randomCategory.id,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          });
+        }
       }
       return subcategories;
     };
 
     const subcategoriesData = await generateSubcategories();
-    await queryInterface.bulkInsert("Subcategories", subcategoriesData);
+    await queryInterface.bulkInsert("Subcategories", subcategoriesData, {});
   },
 
   async down(queryInterface, Sequelize) {

@@ -35,7 +35,7 @@ module.exports = {
 
     const generateQuotationSupplierProducts = async () => {
       const quotationSupplierProducts = [];
-      for (let i = 0; i < 500; i++) {
+      for (let i = 0; i < 150; i++) {
         const randomQuotationProductId =
           quotationProductRows[
             Math.floor(Math.random() * quotationProductRows.length)

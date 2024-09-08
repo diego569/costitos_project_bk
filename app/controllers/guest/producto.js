@@ -14,7 +14,7 @@ const getProductDetailsBySupplierProductSlug = async (req, res) => {
       `
       SELECT
         sp.id AS supplier_product_id,
-        sp."productId" AS product_id, -- Necesario para la segunda consulta
+        sp."productId" AS product_id, -- Necesario para la segunda consulta y para devolver el product_id
         p.name AS product_name,
         p.description AS product_description,
         sp."unitOfMeasure" AS product_unit_of_measure,
@@ -38,7 +38,7 @@ const getProductDetailsBySupplierProductSlug = async (req, res) => {
       }
     );
 
-    const product = result[0]; // Asumimos que supplierProductSlug es único y devuelve un solo resultado
+    const product = result[0];
 
     if (!product) {
       return res.status(404).json({ error: "Producto no encontrado" });
@@ -72,9 +72,11 @@ const getProductDetailsBySupplierProductSlug = async (req, res) => {
       value: feature.feature_value,
     }));
 
+    // Incluye el product_id en la respuesta
     res.status(200).json({
       data: {
-        id: product.supplier_product_id,
+        supplierProductId: product.supplier_product_id,
+        productId: product.product_id, // Asegúrate de incluir el product_id aquí
         name: product.product_name,
         description: product.product_description,
         unitOfMeasure: product.product_unit_of_measure,
@@ -90,6 +92,64 @@ const getProductDetailsBySupplierProductSlug = async (req, res) => {
   }
 };
 
+const getProductCategoryAndSubcategoryByProductId = async (req, res) => {
+  const { productId } = req.params;
+  try {
+    const categoryResult = await sequelize.query(
+      `
+        SELECT
+          c.id AS category_id,
+          c.name AS category_name,
+          c.slug AS category_slug,
+          sc.id AS subcategory_id,
+          sc.name AS subcategory_name,
+          sc.slug AS subcategory_slug
+        FROM
+          public."Products" p
+        LEFT JOIN
+          public."Subcategories" sc ON p."subcategoryId" = sc.id
+        LEFT JOIN
+          public."Categories" c ON sc."categoryId" = c.id
+        WHERE
+          p.id = :productId
+      `,
+      {
+        type: sequelize.QueryTypes.SELECT,
+        replacements: { productId },
+      }
+    );
+
+    if (categoryResult.length === 0) {
+      return res.status(404).json({
+        error:
+          "No se encontraron la categoría y subcategoría para este producto",
+      });
+    }
+
+    const categoryData = {
+      category: {
+        id: categoryResult[0].category_id,
+        name: categoryResult[0].category_name,
+        slug: categoryResult[0].category_slug,
+      },
+      subcategory: {
+        id: categoryResult[0].subcategory_id,
+        name: categoryResult[0].subcategory_name,
+        slug: categoryResult[0].subcategory_slug,
+      },
+    };
+
+    res.status(200).json(categoryData);
+  } catch (error) {
+    console.error(
+      "Error al obtener la categoría y subcategoría del producto:",
+      error
+    );
+    res.status(500).json({ error: "Error interno del servidor" });
+  }
+};
+
 module.exports = {
   getProductDetailsBySupplierProductSlug,
+  getProductCategoryAndSubcategoryByProductId,
 };

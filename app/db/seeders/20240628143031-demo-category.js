@@ -22,7 +22,7 @@ module.exports = {
       };
       categories.push(otherCategory);
 
-      for (let i = 0; i < 24; i++) {
+      for (let i = 0; i < 15; i++) {
         const categoryName = fakerES.commerce.department();
         categories.push({
           id: uuidv4(),

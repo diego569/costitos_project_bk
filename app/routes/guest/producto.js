@@ -7,4 +7,9 @@ router.get(
   Producto.getProductDetailsBySupplierProductSlug
 );
 
+router.get(
+  "/:productId/category-subcategory",
+  Producto.getProductCategoryAndSubcategoryByProductId
+);
+
 module.exports = router;

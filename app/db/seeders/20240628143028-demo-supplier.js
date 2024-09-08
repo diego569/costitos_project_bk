@@ -17,7 +17,6 @@ module.exports = {
       return randomNumber.toString();
     };
 
-    // Insertar un proveedor específico
     await queryInterface.bulkInsert("Suppliers", [
       {
         id: uuidv4(),
@@ -27,7 +26,7 @@ module.exports = {
         economicActivity: "Technology Services",
         fiscalAddress: "Quisvar Street 123",
         ruc: fakerES.number.int({ min: 100000000, max: 999999999 }).toString(),
-        imageId: imageRows[0].id, // Usando la primera imagen para este proveedor
+        imageId: imageRows[0].id,
         email: "quisvar@quisvar",
         phone: generatePhoneNumber(),
         role: "supplier",
@@ -57,7 +56,7 @@ module.exports = {
             .toString(),
           imageId: randomImageId,
           email: fakerES.internet.email(),
-          phone: generatePhoneNumber(), // Generate random phone number
+          phone: generatePhoneNumber(),
           role: "supplier",
           password: await hashPassword(fakerES.internet.password()),
           enabled: true,

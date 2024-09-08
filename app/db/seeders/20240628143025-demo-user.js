@@ -79,7 +79,7 @@ module.exports = {
       const randomImageId =
         imageRows[Math.floor(Math.random() * imageRows.length)].id;
 
-      for (let i = 3; i < 50; i++) {
+      for (let i = 3; i < 15; i++) {
         users.push({
           id: uuidv4(),
           firstName: fakerES.person.firstName(),
@@ -88,7 +88,7 @@ module.exports = {
           dni: fakerES.number.int({ min: 10000000, max: 99999999 }).toString(),
           imageId: randomImageId,
           password: fakerES.person.firstName(),
-          phone: generatePhoneNumber(), // Generate random phone number
+          phone: generatePhoneNumber(),
           enabled: true,
           role: fakerES.helpers.arrayElement(["normal", "admin"]),
           paymentType: fakerES.helpers.arrayElement(["mensual", "cotizacion"]),
