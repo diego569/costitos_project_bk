@@ -6,7 +6,6 @@ const swaggerJsdoc = require("swagger-jsdoc");
 const config = require("./config/config");
 const app = express();
 
-// Configuración de Swagger
 const swaggerOptions = {
   definition: {
     openapi: "3.0.0",
@@ -16,15 +15,14 @@ const swaggerOptions = {
       description: "Documentación de la API de Mi Aplicación",
     },
   },
-  apis: ["./app/routes/*.js"], // Rutas donde están definidos los endpoints
+  apis: ["./app/routes/*.js"],
 };
 const swaggerDocs = swaggerJsdoc(swaggerOptions);
 
-// Middleware para servir la documentación Swagger
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 app.use(cors());
-const sequelize = new Sequelize(config.development); // Utiliza la configuración 'development'
+const sequelize = new Sequelize(config.development);
 
 const port = process.env.PORT || 8000;
 
