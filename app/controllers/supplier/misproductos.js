@@ -95,19 +95,22 @@ const getProductsBySupplier = async (req, res) => {
       SELECT
         sp.id AS supplier_product_id,
         sp.price,
-        sp."unitOfMeasure",
+        uom.name AS unit_of_measure,  
         p.id AS product_id,
         p.name,
         p.description,
         i.url AS photo,
         sp.slug AS product_slug,
-        sp."createdAt"
+        sp."createdAt",
+        (sp."adminAuthorizedId" IS NOT NULL) AS is_authorized 
       FROM
         public."SupplierProducts" sp
       JOIN
         public."Products" p ON sp."productId" = p.id
       LEFT JOIN
         public."Images" i ON p."imageId" = i.id
+      LEFT JOIN
+        public."UnitOfMeasure" uom ON sp."unitOfMeasureId" = uom.id  
       WHERE
         sp."supplierId" = :supplierId
       ORDER BY
@@ -138,19 +141,22 @@ const getProductsBySupplierAndCategory = async (req, res) => {
       SELECT
         sp.id AS supplier_product_id,
         sp.price,
-        sp."unitOfMeasure",
+        uom.name AS unit_of_measure,  
         p.id AS product_id,
         p.name,
         p.description,
         i.url AS photo,
         sp.slug AS product_slug,
-        sp."createdAt"
+        sp."createdAt",
+        (sp."adminAuthorizedId" IS NOT NULL) AS is_authorized  
       FROM
         public."SupplierProducts" sp
       JOIN
         public."Products" p ON sp."productId" = p.id
       LEFT JOIN
         public."Images" i ON p."imageId" = i.id
+      LEFT JOIN
+        public."UnitOfMeasure" uom ON sp."unitOfMeasureId" = uom.id 
       JOIN
         public."Subcategories" s ON p."subcategoryId" = s.id
       WHERE
@@ -184,19 +190,22 @@ const getProductsBySupplierAndSubcategory = async (req, res) => {
       SELECT
         sp.id AS supplier_product_id,
         sp.price,
-        sp."unitOfMeasure",
+        uom.name AS unit_of_measure,  
         p.id AS product_id,
         p.name,
         p.description,
         i.url AS photo,
         sp.slug AS product_slug,
-        sp."createdAt"
+        sp."createdAt",
+        (sp."adminAuthorizedId" IS NOT NULL) AS is_authorized  
       FROM
         public."SupplierProducts" sp
       JOIN
         public."Products" p ON sp."productId" = p.id
       LEFT JOIN
         public."Images" i ON p."imageId" = i.id
+      LEFT JOIN
+        public."UnitOfMeasure" uom ON sp."unitOfMeasureId" = uom.id 
       WHERE
         sp."supplierId" = :supplierId
         AND p."subcategoryId" = :subcategoryId
@@ -229,19 +238,22 @@ const searchProductsBySupplier = async (req, res) => {
       SELECT
         sp.id AS supplier_product_id,
         sp.price,
-        sp."unitOfMeasure",
+        uom.name AS unit_of_measure,  
         p.id AS product_id,
         p.name,
         p.description,
         i.url AS photo,
         sp.slug AS product_slug,
-        sp."createdAt"
+        sp."createdAt",
+        (sp."adminAuthorizedId" IS NOT NULL) AS is_authorized  
       FROM
         public."SupplierProducts" sp
       JOIN
         public."Products" p ON sp."productId" = p.id
       LEFT JOIN
         public."Images" i ON p."imageId" = i.id
+      LEFT JOIN
+        public."UnitOfMeasure" uom ON sp."unitOfMeasureId" = uom.id  
       WHERE
         sp."supplierId" = :supplierId
         AND (p.name ILIKE :query OR p.description ILIKE :query)
@@ -274,19 +286,22 @@ const searchProductsBySupplierAndCategory = async (req, res) => {
       SELECT
         sp.id AS supplier_product_id,
         sp.price,
-        sp."unitOfMeasure",
+        uom.name AS unit_of_measure,  
         p.id AS product_id,
         p.name,
         p.description,
         i.url AS photo,
         sp.slug AS product_slug,
-        sp."createdAt"
+        sp."createdAt",
+        (sp."adminAuthorizedId" IS NOT NULL) AS is_authorized 
       FROM
         public."SupplierProducts" sp
       JOIN
         public."Products" p ON sp."productId" = p.id
       LEFT JOIN
         public."Images" i ON p."imageId" = i.id
+      LEFT JOIN
+        public."UnitOfMeasure" uom ON sp."unitOfMeasureId" = uom.id 
       JOIN
         public."Subcategories" s ON p."subcategoryId" = s.id
       WHERE
@@ -322,19 +337,22 @@ const searchProductsBySupplierAndSubcategory = async (req, res) => {
       SELECT
         sp.id AS supplier_product_id,
         sp.price,
-        sp."unitOfMeasure",
+        uom.name AS unit_of_measure, 
         p.id AS product_id,
         p.name,
         p.description,
         i.url AS photo,
         sp.slug AS product_slug,
-        sp."createdAt"
+        sp."createdAt",
+        (sp."adminAuthorizedId" IS NOT NULL) AS is_authorized 
       FROM
         public."SupplierProducts" sp
       JOIN
         public."Products" p ON sp."productId" = p.id
       LEFT JOIN
         public."Images" i ON p."imageId" = i.id
+      LEFT JOIN
+        public."UnitOfMeasure" uom ON sp."unitOfMeasureId" = uom.id  
       WHERE
         sp."supplierId" = :supplierId
         AND p."subcategoryId" = :subcategoryId
@@ -452,6 +470,47 @@ const createSubcategory = async (req, res) => {
   }
 };
 
+const UnitOfMeasure = require("../../models/unitofmeasure");
+
+const getUnitOfMeasures = async (req, res) => {
+  try {
+    const unitsOfMeasure = await UnitOfMeasure.findAll({
+      attributes: ["id", "value", "name"],
+    });
+
+    res.status(200).json({
+      data: unitsOfMeasure.map((unit) => ({
+        id: unit.id,
+        value: unit.value,
+        name: unit.name,
+      })),
+      count: unitsOfMeasure.length,
+    });
+  } catch (error) {
+    console.error("Error al obtener las unidades de medida:", error);
+    res.status(500).json({ error: "Error interno del servidor" });
+  }
+};
+
+const createUnitOfMeasure = async (req, res) => {
+  try {
+    const { value, name } = req.body;
+
+    if (!value || !name) {
+      return res
+        .status(400)
+        .json({ error: "Both value and name are required." });
+    }
+
+    const unitOfMeasure = await UnitOfMeasure.create({ value, name });
+
+    res.status(201).json({ unitOfMeasure });
+  } catch (error) {
+    console.error("Error creating unit of measure:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
 module.exports = {
   getCategoriesBySupplier,
   getSubcategoriesBySupplierAndCategory,
@@ -465,4 +524,6 @@ module.exports = {
   getSubcategoriesByCategoryId,
   createCategory,
   createSubcategory,
+  getUnitOfMeasures,
+  createUnitOfMeasure,
 };

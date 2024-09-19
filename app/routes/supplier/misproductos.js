@@ -44,12 +44,18 @@ router.get(
 
 //
 router.get("/getcategories", Misproductos.getCategories);
+
 router.get(
   "/getsubcategoriesbycategory/:categoryId",
   Misproductos.getSubcategoriesByCategoryId
 );
 
 router.post("/categories", Misproductos.createCategory);
+
 router.post("/subcategories", Misproductos.createSubcategory);
+
+router.get("/getunitofmeasures", Misproductos.getUnitOfMeasures);
+
+router.post("/unitofmeasures", Misproductos.createUnitOfMeasure);
 
 module.exports = router;

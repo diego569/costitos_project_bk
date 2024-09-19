@@ -10,6 +10,7 @@ router.post(
 );
 
 router.post("/createproduct", Crear.createProduct);
+
 router.post("/createsupplierproduct", Crear.createSupplierProduct);
 
 module.exports = router;

@@ -13,12 +13,13 @@ const searchSupplierProductsByCategory = async (req, res) => {
       `
       SELECT
         sp.id AS supplier_product_id,
-        sp."unitOfMeasure" AS product_unit_of_measure,
+        uom.name AS product_unit_of_measure,  
         sp.slug AS supplier_product_slug,
         p.name AS product_name,
         p.description AS product_description,
         i.url AS product_photo,
-        sp."createdAt" AS created_at
+        sp."createdAt" AS created_at,
+        (sp."adminAuthorizedId" IS NOT NULL) AS is_authorized  
       FROM
         public."SupplierProducts" sp
       JOIN
@@ -29,6 +30,8 @@ const searchSupplierProductsByCategory = async (req, res) => {
         public."Categories" c ON sc."categoryId" = c.id
       LEFT JOIN
         public."Images" i ON p."imageId" = i.id
+      LEFT JOIN
+        public."UnitOfMeasure" uom ON sp."unitOfMeasureId" = uom.id  
       WHERE
         c.slug = :categorySlug
         AND (p.name ILIKE :query OR p.description ILIKE :query)
@@ -49,6 +52,7 @@ const searchSupplierProductsByCategory = async (req, res) => {
       slug: product.supplier_product_slug,
       photo: product.product_photo,
       unitOfMeasure: product.product_unit_of_measure,
+      isAuthorized: product.is_authorized,
     }));
 
     res.status(200).json({
@@ -65,7 +69,6 @@ const getSubcategoriesByCategorySlug = async (req, res) => {
   try {
     const { slug } = req.params;
 
-    // Busca la categoría por su slug e incluye las subcategorías asociadas
     const category = await Category.findOne({
       where: { slug },
       attributes: ["id", "name", "slug"],
@@ -104,13 +107,14 @@ const getRecentSupplierProductsByCategory = async (req, res) => {
   try {
     const supplierProducts = await sequelize.query(
       `
-      SELECT DISTINCT ON (sp."productId", sp."unitOfMeasure")
+      SELECT
         sp.id AS supplier_product_id,
         p.name AS product_name,
         p.description AS product_description,
-        sp."unitOfMeasure" AS unit_of_measure,
+        uom.name AS unit_of_measure,   
         i.url AS product_image,
-        sp.slug AS supplier_product_slug
+        sp.slug AS supplier_product_slug,
+        (sp."adminAuthorizedId" IS NOT NULL) AS is_authorized  
       FROM
         public."SupplierProducts" sp
       JOIN
@@ -121,10 +125,12 @@ const getRecentSupplierProductsByCategory = async (req, res) => {
         public."Categories" c ON sc."categoryId" = c.id
       LEFT JOIN
         public."Images" i ON p."imageId" = i.id
+      LEFT JOIN
+        public."UnitOfMeasure" uom ON sp."unitOfMeasureId" = uom.id   
       WHERE
         c.slug = :categorySlug
       ORDER BY
-        sp."productId", sp."unitOfMeasure", sp."createdAt" DESC
+        sp."createdAt" DESC
       LIMIT 10
       `,
       {
@@ -141,6 +147,7 @@ const getRecentSupplierProductsByCategory = async (req, res) => {
         slug: sp.supplier_product_slug,
         photo: sp.product_image,
         unitOfMeasure: sp.unit_of_measure,
+        isAuthorized: sp.is_authorized,
       })),
       count: supplierProducts.length,
     });
@@ -152,6 +159,7 @@ const getRecentSupplierProductsByCategory = async (req, res) => {
     res.status(500).json({ error: "Error interno del servidor" });
   }
 };
+
 const getMostQuotedProductsByCategory = async (req, res) => {
   const { categorySlug } = req.params;
   try {
@@ -163,8 +171,9 @@ const getMostQuotedProductsByCategory = async (req, res) => {
         sp.slug AS product_slug,
         p.description AS product_description,
         i.url AS product_photo,
-        sp."unitOfMeasure" AS product_unit_of_measure,
-        COUNT(qp."productId") AS quote_count
+        uom.name AS product_unit_of_measure,  
+        COUNT(qp."productId") AS quote_count,
+        (sp."adminAuthorizedId" IS NOT NULL) AS is_authorized  
       FROM
         public."SupplierProducts" sp
       JOIN
@@ -177,10 +186,12 @@ const getMostQuotedProductsByCategory = async (req, res) => {
         public."Images" i ON p."imageId" = i.id
       LEFT JOIN
         public."QuotationProducts" qp ON sp."productId" = qp."productId"
+      LEFT JOIN
+        public."UnitOfMeasure" uom ON sp."unitOfMeasureId" = uom.id   
       WHERE
         c.slug = :categorySlug
       GROUP BY
-        sp.id, p.name, sp.slug, p.description, i.url, sp."unitOfMeasure"
+        sp.id, p.name, sp.slug, p.description, i.url, uom.name  
       ORDER BY
         quote_count DESC
       LIMIT 10
@@ -198,6 +209,7 @@ const getMostQuotedProductsByCategory = async (req, res) => {
       slug: product.product_slug,
       photo: product.product_photo,
       unitOfMeasure: product.product_unit_of_measure,
+      isAuthorized: product.is_authorized,
     }));
 
     res.status(200).json({
@@ -212,14 +224,14 @@ const getMostQuotedProductsByCategory = async (req, res) => {
     res.status(500).json({ error: "Error interno del servidor" });
   }
 };
+
 const getCategoryNameBySlug = async (req, res) => {
   try {
     const { slug } = req.params;
 
-    // Busca la categoría por su slug
     const category = await Category.findOne({
       where: { slug },
-      attributes: ["name", "slug"], // Atributos que queremos obtener
+      attributes: ["name", "slug"],
     });
 
     if (!category) {
@@ -237,6 +249,7 @@ const getCategoryNameBySlug = async (req, res) => {
     res.status(500).json({ error: "Error interno del servidor" });
   }
 };
+
 module.exports = {
   searchSupplierProductsByCategory,
   getSubcategoriesByCategorySlug,

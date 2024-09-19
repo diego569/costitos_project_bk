@@ -155,7 +155,8 @@ const getProductsBySubcategoryAndSupplier = async (req, res) => {
         p.description AS product_description,
         sp.slug AS supplier_product_slug,
         i.url AS product_image,
-        sp."unitOfMeasure" AS unit_of_measure
+        uom.name AS unit_of_measure,   
+        (sp."adminAuthorizedId" IS NOT NULL) AS is_authorized   
       FROM
         public."SupplierProducts" sp
       JOIN
@@ -164,6 +165,8 @@ const getProductsBySubcategoryAndSupplier = async (req, res) => {
         public."Subcategories" sc ON p."subcategoryId" = sc.id
       LEFT JOIN
         public."Images" i ON p."imageId" = i.id
+      LEFT JOIN
+        public."UnitOfMeasure" uom ON sp."unitOfMeasureId" = uom.id   
       WHERE
         sc.slug = :subcategorySlug
         AND sp."supplierId" = :supplierId
@@ -184,6 +187,7 @@ const getProductsBySubcategoryAndSupplier = async (req, res) => {
         slug: product.supplier_product_slug,
         photo: product.product_image,
         unitOfMeasure: product.unit_of_measure,
+        isAuthorized: product.is_authorized,
       })),
       count: products.length,
     });
@@ -205,19 +209,22 @@ const searchProductsBySupplier = async (req, res) => {
       `
       SELECT
         sp.id AS supplier_product_id,
-        sp."unitOfMeasure" AS "product_unitOfMeasure",
+        uom.name AS product_unitOfMeasure,  -- Obtener el nombre de la unidad de medida
         p.id AS product_id,
         p.name AS product_name,
         sp.slug AS product_slug,
         p.description AS product_description,
         i.url AS product_photo,
-        sp."createdAt" AS created_at
+        sp."createdAt" AS created_at,
+        (sp."adminAuthorizedId" IS NOT NULL) AS is_authorized  -- Verificar si está autorizado
       FROM
         public."SupplierProducts" sp
       JOIN
         public."Products" p ON sp."productId" = p.id
       LEFT JOIN
         public."Images" i ON p."imageId" = i.id
+      LEFT JOIN
+        public."UnitOfMeasure" uom ON sp."unitOfMeasureId" = uom.id  -- Unir con UnitOfMeasure
       WHERE
         sp."supplierId" = :supplierId
         AND (p.name ILIKE :query OR p.description ILIKE :query)
@@ -236,7 +243,8 @@ const searchProductsBySupplier = async (req, res) => {
       description: product.product_description,
       slug: product.product_slug,
       photo: product.product_photo,
-      unitOfMeasure: product.product_unitOfMeasure,
+      unitOfMeasure: product.product_unitOfMeasure, // Usar el nombre de la unidad de medida
+      isAuthorized: product.is_authorized, // Devolver true o false según la autorización
     }));
 
     res.status(200).json({
@@ -258,19 +266,22 @@ const searchProductsByCategoryAndSupplier = async (req, res) => {
       `
       SELECT
         sp.id AS supplier_product_id,
-        sp."unitOfMeasure" AS "product_unitOfMeasure",
+        uom.name AS product_unitOfMeasure,  -- Obtener el nombre de la unidad de medida
         p.id AS product_id,
         p.name AS product_name,
         sp.slug AS product_slug,
         p.description AS product_description,
         i.url AS product_photo,
-        sp."createdAt" AS created_at
+        sp."createdAt" AS created_at,
+        (sp."adminAuthorizedId" IS NOT NULL) AS is_authorized  -- Verificar si está autorizado
       FROM
         public."SupplierProducts" sp
       JOIN
         public."Products" p ON sp."productId" = p.id
       LEFT JOIN
         public."Images" i ON p."imageId" = i.id
+      LEFT JOIN
+        public."UnitOfMeasure" uom ON sp."unitOfMeasureId" = uom.id  -- Unir con UnitOfMeasure
       JOIN
         public."Subcategories" sc ON p."subcategoryId" = sc.id
       JOIN
@@ -294,7 +305,8 @@ const searchProductsByCategoryAndSupplier = async (req, res) => {
       description: product.product_description,
       slug: product.product_slug,
       photo: product.product_photo,
-      unitOfMeasure: product.product_unitOfMeasure,
+      unitOfMeasure: product.product_unitOfMeasure, // Usar el nombre de la unidad de medida
+      isAuthorized: product.is_authorized, // Devolver true o false según la autorización
     }));
 
     res.status(200).json({
@@ -319,19 +331,22 @@ const searchProductsBySubcategoryAndSupplier = async (req, res) => {
       `
       SELECT
         sp.id AS supplier_product_id,
-        sp."unitOfMeasure" AS "product_unitOfMeasure",
+        uom.name AS product_unitOfMeasure,  -- Obtener el nombre de la unidad de medida
         p.id AS product_id,
         p.name AS product_name,
         sp.slug AS product_slug,
         p.description AS product_description,
         i.url AS product_photo,
-        sp."createdAt" AS created_at
+        sp."createdAt" AS created_at,
+        (sp."adminAuthorizedId" IS NOT NULL) AS is_authorized  -- Verificar si está autorizado
       FROM
         public."SupplierProducts" sp
       JOIN
         public."Products" p ON sp."productId" = p.id
       LEFT JOIN
         public."Images" i ON p."imageId" = i.id
+      LEFT JOIN
+        public."UnitOfMeasure" uom ON sp."unitOfMeasureId" = uom.id  -- Unir con UnitOfMeasure
       JOIN
         public."Subcategories" sc ON p."subcategoryId" = sc.id
       WHERE
@@ -353,7 +368,8 @@ const searchProductsBySubcategoryAndSupplier = async (req, res) => {
       description: product.product_description,
       slug: product.product_slug,
       photo: product.product_photo,
-      unitOfMeasure: product.product_unitOfMeasure,
+      unitOfMeasure: product.product_unitOfMeasure, // Usar el nombre de la unidad de medida
+      isAuthorized: product.is_authorized, // Devolver true o false según la autorización
     }));
 
     res.status(200).json({

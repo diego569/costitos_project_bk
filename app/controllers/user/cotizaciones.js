@@ -5,13 +5,11 @@ const Quotation = require("../../models/quotation");
 const User = require("../../models/user");
 
 const sequelize = new Sequelize(config.development);
-const { v4: uuidv4 } = require("uuid");
 
 const getQuotationsByUser = async (req, res) => {
   try {
     const { userId } = req.params;
 
-    // Consulta utilizando el ORM de Sequelize
     const quotations = await Quotation.findAll({
       where: { userId },
       attributes: [
@@ -29,11 +27,11 @@ const getQuotationsByUser = async (req, res) => {
             "DD Mon YYYY HH24:MI:SS"
           ),
           "date",
-        ], // Formato de fecha
+        ],
         "createdAt",
         "updatedAt",
       ],
-      order: [["createdAt", "DESC"]], // Ordenar por fecha de creación en orden descendente
+      order: [["createdAt", "DESC"]],
     });
 
     const response = {
@@ -65,7 +63,7 @@ const getQuotationDetails = async (req, res) => {
           p.name AS "productName",
           p.description AS "productDescription",
           i.url AS "productPhoto",
-          sp."unitOfMeasure" AS "productUnitOfMeasure",
+          uom.name AS "productUnitOfMeasure",  
           qp.quantity AS "productQuantity",
           qsp."supplierId",
           s.name AS "supplierName",
@@ -75,7 +73,8 @@ const getQuotationDetails = async (req, res) => {
           s.cellphone AS "supplierPhone",
           qsp."unitPrice" AS "supplierUnitPrice",
           q."createdAt",
-          to_char(q."createdAt", 'DD Mon YYYY HH24:MI:SS') AS "formattedDate" -- Fecha formateada
+          to_char(q."createdAt", 'DD Mon YYYY HH24:MI:SS') AS "formattedDate",  
+          (sp."adminAuthorizedId" IS NOT NULL) AS "isAuthorized"  
         FROM
           public."Quotations" q
         JOIN
@@ -90,6 +89,8 @@ const getQuotationDetails = async (req, res) => {
           public."SupplierProducts" sp ON sp."productId" = qp."productId" AND sp."supplierId" = qsp."supplierId"
         LEFT JOIN
           public."Images" i ON p."imageId" = i.id
+        LEFT JOIN
+          public."UnitOfMeasure" uom ON sp."unitOfMeasureId" = uom.id   
         WHERE
           q.id = :quotationId
         `,
@@ -114,12 +115,10 @@ const getQuotationDetails = async (req, res) => {
 };
 
 const getQuotationCountById = async (req, res) => {
-  const userId = req.params.id; // Obtener el ID del usuario de los parámetros de la ruta
-
+  const userId = req.params.id;
   try {
-    // Buscar el usuario por su ID
     const user = await User.findByPk(userId, {
-      attributes: ["quotationCount"], // Solo seleccionar el campo quotationCount
+      attributes: ["quotationCount"],
     });
 
     if (!user) {

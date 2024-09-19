@@ -8,7 +8,6 @@ const getSubcategoriesByCategorySlug = async (req, res) => {
   try {
     const { slug } = req.params;
 
-    // Busca la categoría por su slug e incluye las subcategorías asociadas
     const category = await Category.findOne({
       where: { slug },
       attributes: ["id", "name", "slug"],
@@ -41,6 +40,7 @@ const getSubcategoriesByCategorySlug = async (req, res) => {
     res.status(500).json({ error: "Error interno del servidor" });
   }
 };
+
 const getRecentProductsByCategory = async (req, res) => {
   const { categorySlug } = req.params;
   try {

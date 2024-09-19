@@ -9,28 +9,35 @@ const addSupplierProducts = async (req, res) => {
   const { userId, products } = req.body;
 
   try {
-    // Crear las entradas para SupplierProducts
-    const supplierProductsEntries = products.map((product) => ({
-      id: uuidv4(),
-      supplierId: userId, // Usar el userId recibido en la solicitud
-      productId: product.productId,
-      slug: `${product.productId}-${product.unitOfMeasure}`
-        .toLowerCase()
-        .replace(/ /g, "-"),
-      price: product.price,
-      unitOfMeasure: product.unitOfMeasure,
-      status: "active", // Puedes ajustar esto según tus necesidades
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    }));
+    // Ensure that each product includes a valid unitOfMeasureId
+    const supplierProductsEntries = products.map((product) => {
+      if (!product.unitOfMeasureId) {
+        throw new Error(
+          "Unidad de medida (unitOfMeasureId) es requerida para cada producto."
+        );
+      }
 
-    // Insertar las entradas en la tabla SupplierProducts
+      return {
+        id: uuidv4(),
+        supplierId: userId,
+        productId: product.productId,
+        slug: `${product.productId}-${product.unitOfMeasureId}`
+          .toLowerCase()
+          .replace(/ /g, "-"),
+        price: product.price,
+        unitOfMeasureId: product.unitOfMeasureId,
+        status: "active",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+    });
+
     await sequelize.transaction(async (transaction) => {
       for (const entry of supplierProductsEntries) {
         await sequelize.query(
           `
-            INSERT INTO "SupplierProducts" (id, "supplierId", "productId", slug, price, "unitOfMeasure", status, "createdAt", "updatedAt")
-            VALUES (:id, :supplierId, :productId, :slug, :price, :unitOfMeasure, :status, NOW(), NOW())
+            INSERT INTO "SupplierProducts" (id, "supplierId", "productId", slug, price, "unitOfMeasureId", status, "createdAt", "updatedAt")
+            VALUES (:id, :supplierId, :productId, :slug, :price, :unitOfMeasureId, :status, NOW(), NOW())
             `,
           {
             type: sequelize.QueryTypes.INSERT,
@@ -50,6 +57,7 @@ const addSupplierProducts = async (req, res) => {
     res.status(500).json({ error: "Error interno del servidor" });
   }
 };
+
 module.exports = {
   addSupplierProducts,
 };

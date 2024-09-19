@@ -39,6 +39,7 @@ const createItem = async (req, res) => {
     res.status(500).send({ error: "Error interno del servidor" });
   }
 };
+
 const createProduct = async (req, res) => {
   try {
     const {
@@ -53,28 +54,58 @@ const createProduct = async (req, res) => {
       updatedAt = new Date(),
     } = req.body;
 
-    // Generate slug
     const slug = slugify(name, { lower: true, strict: true });
+
+    const existingProduct = await sequelize.query(
+      `
+      SELECT id FROM "Products" WHERE slug = :slug
+      `,
+      {
+        replacements: { slug },
+        type: sequelize.QueryTypes.SELECT,
+      }
+    );
+
+    if (existingProduct.length > 0) {
+      return res
+        .status(400)
+        .send({ error: "Nombre repetido. El slug ya existe." });
+    }
+
+    const safeSubcategoryId = subcategoryId ? subcategoryId : null;
+    const safeImageId = imageId ? imageId : null;
+
+    const generateRandomCode = () => {
+      const letters = Array(3)
+        .fill(null)
+        .map(() => String.fromCharCode(65 + Math.floor(Math.random() * 26)))
+        .join("");
+      const numbers = String(Math.floor(Math.random() * 1000)).padStart(3, "0");
+      return `${letters}${numbers}`;
+    };
+
+    const code = generateRandomCode();
 
     const productData = {
       id,
       name,
       slug,
       description,
-      imageId,
-      subcategoryId,
+      imageId: safeImageId,
+      subcategoryId: safeSubcategoryId,
       supplierId,
       status,
       createdAt,
       updatedAt,
+      code,
     };
 
     const [result] = await sequelize.query(
       `
-        INSERT INTO "Products" (id, name, slug, description, "imageId", "subcategoryId", "supplierId", status, "createdAt", "updatedAt")
-        VALUES (:id, :name, :slug, :description, :imageId, :subcategoryId, :supplierId, :status, :createdAt, :updatedAt)
+        INSERT INTO "Products" (id, name, slug, description, "imageId", "subcategoryId", "supplierId", status, "createdAt", "updatedAt", code)
+        VALUES (:id, :name, :slug, :description, :imageId, :subcategoryId, :supplierId, :status, :createdAt, :updatedAt, :code)
         RETURNING id;
-        `,
+      `,
       {
         replacements: productData,
         type: sequelize.QueryTypes.INSERT,
@@ -90,13 +121,31 @@ const createProduct = async (req, res) => {
 
 const createSupplierProduct = async (req, res) => {
   try {
-    const { supplierId, productName, productId, price, unitOfMeasure } =
+    const { supplierId, productName, productId, price, unitOfMeasureId } =
       req.body;
 
-    const slug = slugify(`${productName}-${unitOfMeasure}-${supplierId}`, {
-      lower: true,
-      strict: true,
-    });
+    const unitOfMeasure = await sequelize.query(
+      `
+        SELECT value FROM "UnitOfMeasure" WHERE id = :unitOfMeasureId
+      `,
+      {
+        replacements: { unitOfMeasureId },
+        type: sequelize.QueryTypes.SELECT,
+      }
+    );
+
+    if (!unitOfMeasure || unitOfMeasure.length === 0) {
+      return res.status(400).send({ error: "Unidad de medida no encontrada." });
+    }
+
+    // Use the value for slug generation
+    const slug = slugify(
+      `${productName}-${unitOfMeasure[0].value}-${supplierId}`,
+      {
+        lower: true,
+        strict: true,
+      }
+    );
 
     const supplierProductData = {
       id: uuidv4(),
@@ -104,7 +153,7 @@ const createSupplierProduct = async (req, res) => {
       productId,
       slug,
       price,
-      unitOfMeasure,
+      unitOfMeasureId, // Use the foreign key reference
       status: "active",
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -112,10 +161,10 @@ const createSupplierProduct = async (req, res) => {
 
     const [result] = await sequelize.query(
       `
-        INSERT INTO "SupplierProducts" (id, "supplierId", "productId", slug, price, "unitOfMeasure", status, "createdAt", "updatedAt")
-        VALUES (:id, :supplierId, :productId, :slug, :price, :unitOfMeasure, :status, :createdAt, :updatedAt)
+        INSERT INTO "SupplierProducts" (id, "supplierId", "productId", slug, price, "unitOfMeasureId", status, "createdAt", "updatedAt")
+        VALUES (:id, :supplierId, :productId, :slug, :price, :unitOfMeasureId, :status, :createdAt, :updatedAt)
         RETURNING id;
-        `,
+      `,
       {
         replacements: supplierProductData,
         type: sequelize.QueryTypes.INSERT,

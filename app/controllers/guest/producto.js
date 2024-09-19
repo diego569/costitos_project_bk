@@ -9,18 +9,18 @@ const sequelize = new Sequelize(config.development);
 const getProductDetailsBySupplierProductSlug = async (req, res) => {
   const { supplierProductSlug } = req.params;
   try {
-    // Consulta principal para obtener detalles del producto y el vendedor usando el slug
     const result = await sequelize.query(
       `
       SELECT
         sp.id AS supplier_product_id,
-        sp."productId" AS product_id, -- Necesario para la segunda consulta y para devolver el product_id
+        sp."productId" AS product_id,  
         p.name AS product_name,
         p.description AS product_description,
-        sp."unitOfMeasure" AS product_unit_of_measure,
+        uom.name AS product_unit_of_measure, 
         s.name AS supplier_name,
         s.phone AS supplier_phone,
-        i.url AS product_photo
+        i.url AS product_photo,
+        (sp."adminAuthorizedId" IS NOT NULL) AS is_authorized   
       FROM
         public."SupplierProducts" sp
       JOIN
@@ -29,6 +29,8 @@ const getProductDetailsBySupplierProductSlug = async (req, res) => {
         public."Suppliers" s ON sp."supplierId" = s.id
       LEFT JOIN
         public."Images" i ON p."imageId" = i.id
+      LEFT JOIN
+        public."UnitOfMeasure" uom ON sp."unitOfMeasureId" = uom.id  
       WHERE
         sp.slug = :supplierProductSlug
       `,
@@ -44,7 +46,6 @@ const getProductDetailsBySupplierProductSlug = async (req, res) => {
       return res.status(404).json({ error: "Producto no encontrado" });
     }
 
-    // Consulta para obtener las características del producto
     const featuresResult = await sequelize.query(
       `
       SELECT
@@ -72,17 +73,17 @@ const getProductDetailsBySupplierProductSlug = async (req, res) => {
       value: feature.feature_value,
     }));
 
-    // Incluye el product_id en la respuesta
     res.status(200).json({
       data: {
         supplierProductId: product.supplier_product_id,
-        productId: product.product_id, // Asegúrate de incluir el product_id aquí
+        productId: product.product_id,
         name: product.product_name,
         description: product.product_description,
         unitOfMeasure: product.product_unit_of_measure,
         supplierName: product.supplier_name,
         supplierPhone: product.supplier_phone,
         photo: product.product_photo,
+        isAuthorized: product.is_authorized,
         features: features,
       },
     });

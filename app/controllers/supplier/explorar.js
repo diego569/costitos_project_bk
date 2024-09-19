@@ -13,7 +13,8 @@ const getRecentProductsExplorar = async (req, res) => {
           p.name,
           p.slug,
           p.description,
-          i.url AS photo
+          i.url AS photo,
+          (p."adminAuthorizedId" IS NOT NULL) AS "isAuthorized"
         FROM
           public."Products" p
         LEFT JOIN
@@ -21,7 +22,7 @@ const getRecentProductsExplorar = async (req, res) => {
         ORDER BY
           p."createdAt" DESC
         LIMIT 10
-        `,
+      `,
       {
         type: sequelize.QueryTypes.SELECT,
       }
@@ -36,14 +37,13 @@ const getRecentProductsExplorar = async (req, res) => {
     res.status(500).json({ error: "Error interno del servidor" });
   }
 };
+
 const getCategories = async (req, res) => {
   try {
-    // Utilizamos findAll para obtener todas las categorías
     const categories = await Category.findAll({
       attributes: ["id", "name", "slug", "photo"],
     });
 
-    // Formateamos la respuesta según lo que necesites
     res.status(200).json({
       data: categories.map((category) => ({
         id: category.id,
@@ -58,6 +58,7 @@ const getCategories = async (req, res) => {
     res.status(500).json({ error: "Error interno del servidor" });
   }
 };
+
 const searchRecentProductsExplorar = async (req, res) => {
   const { query } = req.query;
   try {
