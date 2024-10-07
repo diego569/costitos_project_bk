@@ -58,4 +58,12 @@ router.get("/getunitofmeasures", Misproductos.getUnitOfMeasures);
 
 router.post("/unitofmeasures", Misproductos.createUnitOfMeasure);
 
+router.get("/getfeatures", Misproductos.getFeatures);
+
+router.post("/features", Misproductos.createFeature);
+
+router.post("/productfeatures", Misproductos.addProductFeature);
+
+router.post("/addfeaturetoproduct", Misproductos.addFeatureToProduct);
+
 module.exports = router;

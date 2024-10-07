@@ -511,6 +511,72 @@ const createUnitOfMeasure = async (req, res) => {
   }
 };
 
+const getFeatures = async (req, res) => {
+  try {
+    const features = await Feature.findAll();
+    return res.status(200).json({ data: features });
+  } catch (error) {
+    console.error("Error al obtener características:", error);
+    return res.status(500).json({ error: "Error interno del servidor" });
+  }
+};
+
+const Feature = require("../../models/feature");
+const ProductFeature = require("../../models/productfeature");
+
+const createFeature = async (req, res) => {
+  const { name, description } = req.body;
+  try {
+    const feature = await Feature.create({ name, description });
+    return res.status(201).json({ feature });
+  } catch (error) {
+    console.error("Error al crear característica:", error);
+    return res.status(500).json({ error: "Error interno del servidor" });
+  }
+};
+
+const addProductFeature = async (req, res) => {
+  const { productId, featureId, value } = req.body;
+  try {
+    const productFeature = await ProductFeature.create({
+      productId,
+      featureId,
+      value,
+    });
+    return res.status(201).json({ productFeature });
+  } catch (error) {
+    console.error("Error al agregar característica al producto:", error);
+    return res.status(500).json({ error: "Error interno del servidor" });
+  }
+};
+
+const addFeatureToProduct = async (req, res) => {
+  const { productId, featureId, value } = req.body;
+
+  try {
+    if (!productId || !featureId || !value) {
+      return res.status(400).json({ error: "Todos los campos son requeridos" });
+    }
+
+    // Crear la nueva entrada en la tabla ProductFeatures
+    const productFeature = await ProductFeature.create({
+      productId,
+      featureId,
+      value,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+
+    return res.status(201).json({
+      message: "Característica asignada al producto con éxito",
+      data: productFeature,
+    });
+  } catch (error) {
+    console.error("Error al asignar característica al producto:", error);
+    return res.status(500).json({ error: "Error interno del servidor" });
+  }
+};
+
 module.exports = {
   getCategoriesBySupplier,
   getSubcategoriesBySupplierAndCategory,
@@ -526,4 +592,8 @@ module.exports = {
   createSubcategory,
   getUnitOfMeasures,
   createUnitOfMeasure,
+  getFeatures,
+  createFeature,
+  addProductFeature,
+  addFeatureToProduct,
 };
