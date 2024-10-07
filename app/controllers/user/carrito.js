@@ -27,14 +27,15 @@ const createQuotation = async (req, res) => {
         .json({ error: "No tiene suficientes cotizaciones disponibles." });
     }
 
+    // Corrección: nombre de la propiedad correcta para acceder a maxQuotationNumber
     const maxQuotationNumberResult = await sequelize.query(
-      `SELECT COALESCE(MAX("quotationNumber"), 0) AS maxQuotationNumber FROM "Quotations"`,
+      `SELECT COALESCE(MAX("quotationNumber"), 0) AS "maxQuotationNumber" FROM "Quotations"`,
       {
         type: sequelize.QueryTypes.SELECT,
       }
     );
 
-    const maxQuotationNumber = maxQuotationNumberResult[0].maxquotationnumber;
+    const maxQuotationNumber = maxQuotationNumberResult[0].maxQuotationNumber;
     const newQuotationNumber = maxQuotationNumber + 1;
 
     const newQuotationId = uuidv4();
@@ -81,8 +82,11 @@ const addProductsToQuotation = async (req, res) => {
     for (const product of products) {
       const [result] = await sequelize.query(
         `
-          SELECT "productId", "unitOfMeasure" FROM "SupplierProducts" WHERE id = :supplierProductId
-          `,
+          SELECT sp."productId", uom.name AS "unitOfMeasure"
+          FROM "SupplierProducts" sp
+          JOIN "UnitOfMeasure" uom ON sp."unitOfMeasureId" = uom.id
+          WHERE sp.id = :supplierProductId
+        `,
         {
           type: sequelize.QueryTypes.SELECT,
           replacements: { supplierProductId: product.productId },
@@ -102,7 +106,7 @@ const addProductsToQuotation = async (req, res) => {
         createdQuotationProducts.push({
           id: quotationProductId,
           productId: result.productId,
-          unitOfMeasure: result.unitOfMeasure,
+          unitOfMeasure: result.unitOfMeasure, // Ahora obtenemos el nombre de la unidad de medida
         });
       } else {
         return res.status(400).json({
@@ -111,13 +115,14 @@ const addProductsToQuotation = async (req, res) => {
       }
     }
 
+    // Realizar la inserción dentro de una transacción
     await sequelize.transaction(async (transaction) => {
       for (const entry of productEntries) {
         await sequelize.query(
           `
             INSERT INTO "QuotationProducts" (id, "quotationId", "productId", quantity, "createdAt", "updatedAt")
             VALUES (:id, :quotationId, :productId, :quantity, :createdAt, :updatedAt)
-            `,
+          `,
           {
             type: sequelize.QueryTypes.INSERT,
             replacements: entry,
@@ -127,6 +132,7 @@ const addProductsToQuotation = async (req, res) => {
       }
     });
 
+    // Enviar la respuesta al frontend con los productos creados
     res.status(201).json({
       message: "Productos agregados a la cotización con éxito",
       quotationProducts: createdQuotationProducts,
@@ -136,20 +142,20 @@ const addProductsToQuotation = async (req, res) => {
     res.status(500).json({ error: "Error interno del servidor" });
   }
 };
+
 const addQuotationSupplierProducts = async (req, res) => {
-  const { quotationProducts, quotationCount } = req.body; // quotationProducts es un array de { id, productId, unitOfMeasure }
+  const { quotationProducts, quotationCount } = req.body;
 
   try {
-    // Crear un mapa para contar la cantidad de productos por proveedor
     const supplierProductCounts = new Map();
 
-    // Buscar todos los productos del proveedor y contar las ocurrencias
     for (const qp of quotationProducts) {
       const supplierProducts = await sequelize.query(
         `
-          SELECT id AS supplier_product_id, "supplierId", price AS unit_price
-          FROM "SupplierProducts"
-          WHERE "productId" = :productId AND "unitOfMeasure" = :unitOfMeasure
+          SELECT sp.id AS supplier_product_id, sp."supplierId", sp.price AS unit_price
+          FROM "SupplierProducts" sp
+          JOIN "UnitOfMeasure" uom ON sp."unitOfMeasureId" = uom.id
+          WHERE sp."productId" = :productId AND uom.name = :unitOfMeasure
           `,
         {
           type: sequelize.QueryTypes.SELECT,
@@ -171,27 +177,26 @@ const addQuotationSupplierProducts = async (req, res) => {
       }
     }
 
-    // Ordenar los proveedores por la cantidad de productos (de mayor a menor)
     const sortedSuppliers = [...supplierProductCounts.entries()]
       .sort((a, b) => b[1] - a[1])
-      .slice(0, quotationCount); // Tomar solo los primeros quotationCount proveedores
+      .slice(0, quotationCount);
 
     const quotationSupplierProductsEntries = [];
 
-    // Iterar sobre los proveedores ordenados y crear las entradas para QuotationSupplierProducts
     for (const [supplierId] of sortedSuppliers) {
       for (const qp of quotationProducts) {
         const supplierProducts = await sequelize.query(
           `
-            SELECT id AS supplier_product_id, "supplierId", price AS unit_price
-            FROM "SupplierProducts"
-            WHERE "productId" = :productId AND "unitOfMeasure" = :unitOfMeasure AND "supplierId" = :supplierId
+            SELECT sp.id AS supplier_product_id, sp."supplierId", sp.price AS unit_price
+            FROM "SupplierProducts" sp
+            JOIN "UnitOfMeasure" uom ON sp."unitOfMeasureId" = uom.id
+            WHERE sp."productId" = :productId AND uom.name = :unitOfMeasure AND sp."supplierId" = :supplierId
             `,
           {
             type: sequelize.QueryTypes.SELECT,
             replacements: {
               productId: qp.productId,
-              unitOfMeasure: qp.unitOfMeasure,
+              unitOfMeasure: qp.unitOfMeasure, // Usamos el nombre de la unidad de medida
               supplierId,
             },
           }
@@ -210,7 +215,6 @@ const addQuotationSupplierProducts = async (req, res) => {
       }
     }
 
-    // Insertar las entradas en la tabla QuotationSupplierProducts
     await sequelize.transaction(async (transaction) => {
       for (const entry of quotationSupplierProductsEntries) {
         await sequelize.query(

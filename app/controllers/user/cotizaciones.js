@@ -77,15 +77,15 @@ const getQuotationDetails = async (req, res) => {
           (sp."adminAuthorizedId" IS NOT NULL) AS "isAuthorized"  
         FROM
           public."Quotations" q
-        JOIN
+        LEFT JOIN
           public."QuotationProducts" qp ON q.id = qp."quotationId"
-        JOIN
+        LEFT JOIN
           public."Products" p ON qp."productId" = p.id
-        JOIN
+        LEFT JOIN
           public."QuotationSupplierProducts" qsp ON qp.id = qsp."quotationProductId"
-        JOIN
+        LEFT JOIN
           public."Suppliers" s ON qsp."supplierId" = s.id
-        JOIN
+        LEFT JOIN
           public."SupplierProducts" sp ON sp."productId" = qp."productId" AND sp."supplierId" = qsp."supplierId"
         LEFT JOIN
           public."Images" i ON p."imageId" = i.id
@@ -93,12 +93,16 @@ const getQuotationDetails = async (req, res) => {
           public."UnitOfMeasure" uom ON sp."unitOfMeasureId" = uom.id   
         WHERE
           q.id = :quotationId
-        `,
+      `,
       {
         type: sequelize.QueryTypes.SELECT,
         replacements: { quotationId },
       }
     );
+
+    if (!result || result.length === 0) {
+      return res.status(404).json({ error: "Quotation not found" });
+    }
 
     const response = {
       count: result.length,
