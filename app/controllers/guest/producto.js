@@ -14,6 +14,7 @@ const getProductDetailsBySupplierProductSlug = async (req, res) => {
       SELECT
         sp.id AS supplier_product_id,
         sp."productId" AS product_id,  
+        sp.slug AS supplier_product_slug, 
         p.name AS product_name,
         p.description AS product_description,
         uom.name AS product_unit_of_measure, 
@@ -79,6 +80,7 @@ const getProductDetailsBySupplierProductSlug = async (req, res) => {
         productId: product.product_id,
         name: product.product_name,
         description: product.product_description,
+        slug: product.supplier_product_slug,
         unitOfMeasure: product.product_unit_of_measure,
         supplierName: product.supplier_name,
         supplierPhone: product.supplier_phone,

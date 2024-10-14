@@ -7,7 +7,7 @@ const sequelize = new Sequelize(config.development);
 const { v4: uuidv4 } = require("uuid");
 
 const createQuotation = async (req, res) => {
-  const { userId, name, type, status } = req.body;
+  const { userId, name, type, status, quotationCount } = req.body;
 
   try {
     const user = await User.findOne({
@@ -19,30 +19,30 @@ const createQuotation = async (req, res) => {
       return res.status(404).json({ error: "Usuario no encontrado." });
     }
 
-    const quotationCount = user.quotationCount;
+    const userQuotationCount = user.quotationCount;
 
-    if (quotationCount === 0) {
+    if (userQuotationCount === 0) {
       return res
         .status(400)
         .json({ error: "No tiene suficientes cotizaciones disponibles." });
     }
 
-    // Corrección: nombre de la propiedad correcta para acceder a maxQuotationNumber
-    const maxQuotationNumberResult = await sequelize.query(
-      `SELECT COALESCE(MAX("quotationNumber"), 0) AS "maxQuotationNumber" FROM "Quotations"`,
+    // Obtener el total de registros en la tabla "Quotations"
+    const totalQuotationsResult = await sequelize.query(
+      `SELECT COUNT(*)::INTEGER AS "totalQuotations" FROM "Quotations"`,
       {
         type: sequelize.QueryTypes.SELECT,
       }
     );
 
-    const maxQuotationNumber = maxQuotationNumberResult[0].maxQuotationNumber;
-    const newQuotationNumber = maxQuotationNumber + 1;
+    // Sumar correctamente el número de cotización
+    const newQuotationNumber = totalQuotationsResult[0].totalQuotations + 1;
 
     const newQuotationId = uuidv4();
     const [insertedQuotation] = await sequelize.query(
       `
-        INSERT INTO "Quotations" (id, "userId", name, type, price, status, "quotationNumber", "createdAt", "updatedAt")
-        VALUES (:id, :userId, :name, :type, 0, :status, :quotationNumber, NOW(), NOW())
+        INSERT INTO "Quotations" (id, "userId", name, type, price, status, "quotationNumber", "quotationCount", "createdAt", "updatedAt")
+        VALUES (:id, :userId, :name, :type, 0, :status, :quotationNumber, :quotationCount, NOW(), NOW())
         RETURNING id, "quotationNumber";
       `,
       {
@@ -54,12 +54,14 @@ const createQuotation = async (req, res) => {
           type,
           status,
           quotationNumber: newQuotationNumber,
+          quotationCount, // Usamos el valor de la cantidad de productos recibida del frontend
         },
       }
     );
 
+    // Actualizar la cuenta de cotizaciones del usuario
     await User.update(
-      { quotationCount: quotationCount - 1 },
+      { quotationCount: userQuotationCount - 1 },
       { where: { id: userId } }
     );
 
@@ -106,7 +108,7 @@ const addProductsToQuotation = async (req, res) => {
         createdQuotationProducts.push({
           id: quotationProductId,
           productId: result.productId,
-          unitOfMeasure: result.unitOfMeasure, // Ahora obtenemos el nombre de la unidad de medida
+          unitOfMeasure: result.unitOfMeasure,
         });
       } else {
         return res.status(400).json({
@@ -115,7 +117,6 @@ const addProductsToQuotation = async (req, res) => {
       }
     }
 
-    // Realizar la inserción dentro de una transacción
     await sequelize.transaction(async (transaction) => {
       for (const entry of productEntries) {
         await sequelize.query(
