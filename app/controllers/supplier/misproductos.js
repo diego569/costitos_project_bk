@@ -96,7 +96,7 @@ const getProductsBySupplier = async (req, res) => {
         sp.id AS supplier_product_id,
         sp.price,
         uom.name AS unit_of_measure,  
-        p.id AS product_id,
+        p.id AS id,
         p.name,
         p.description,
         i.url AS photo,
@@ -577,6 +577,106 @@ const addFeatureToProduct = async (req, res) => {
   }
 };
 
+const deleteSupplierProduct = async (req, res) => {
+  const { supplierProductId } = req.params;
+
+  try {
+    const result = await sequelize.query(
+      `
+      DELETE FROM public."SupplierProducts"
+      WHERE id = :supplierProductId
+      RETURNING *;
+      `,
+      {
+        type: sequelize.QueryTypes.DELETE,
+        replacements: { supplierProductId },
+      }
+    );
+
+    if (!result || result.length === 0) {
+      return res.status(404).json({ message: "Producto no encontrado." });
+    }
+
+    res.status(200).json({ message: "Producto eliminado correctamente." });
+  } catch (error) {
+    console.error("Error al eliminar el producto:", error);
+    res.status(500).json({ error: "Error interno del servidor" });
+  }
+};
+const updateProductPrice = async (req, res) => {
+  try {
+    const { supplier_product_id } = req.params; // ID recibido en el parámetro
+    const { price } = req.body;
+
+    // Validar que el ID fue recibido
+    if (!supplier_product_id) {
+      return res.status(400).json({ message: "ID no recibido" });
+    }
+
+    // Actualizar el precio utilizando consulta SQL directa
+    const result = await sequelize.query(
+      `
+      UPDATE public."SupplierProducts"
+      SET price = :price, "updatedAt" = NOW()
+      WHERE id = :supplier_product_id
+      RETURNING *;
+      `,
+      {
+        replacements: { supplier_product_id, price },
+        type: sequelize.QueryTypes.UPDATE,
+      }
+    );
+
+    // Verificar si se actualizó correctamente
+    if (result[0].length === 0) {
+      return res.status(404).json({ message: "Producto no encontrado" });
+    }
+
+    res.status(200).json({ message: "Precio actualizado correctamente." });
+  } catch (error) {
+    console.error("Error al actualizar el precio:", error);
+    res.status(500).json({ error: "Error interno del servidor" });
+  }
+};
+
+const updateProductUnitOfMeasure = async (req, res) => {
+  try {
+    const { supplier_product_id } = req.params; // ID recibido en el parámetro
+    const { unit_of_measure_id } = req.body;
+
+    // Validar que el ID fue recibido
+    if (!supplier_product_id) {
+      return res.status(400).json({ message: "ID no recibido" });
+    }
+
+    // Actualizar el unitOfMeasureId utilizando consulta SQL directa
+    const result = await sequelize.query(
+      `
+      UPDATE public."SupplierProducts"
+      SET "unitOfMeasureId" = :unit_of_measure_id, "updatedAt" = NOW()
+      WHERE id = :supplier_product_id
+      RETURNING *;
+      `,
+      {
+        replacements: { supplier_product_id, unit_of_measure_id },
+        type: sequelize.QueryTypes.UPDATE,
+      }
+    );
+
+    // Verificar si se actualizó correctamente
+    if (result[0].length === 0) {
+      return res.status(404).json({ message: "Producto no encontrado" });
+    }
+
+    res
+      .status(200)
+      .json({ message: "Unidad de medida actualizada correctamente." });
+  } catch (error) {
+    console.error("Error al actualizar la unidad de medida:", error);
+    res.status(500).json({ error: "Error interno del servidor" });
+  }
+};
+
 module.exports = {
   getCategoriesBySupplier,
   getSubcategoriesBySupplierAndCategory,
@@ -596,4 +696,7 @@ module.exports = {
   createFeature,
   addProductFeature,
   addFeatureToProduct,
+  deleteSupplierProduct,
+  updateProductPrice,
+  updateProductUnitOfMeasure,
 };

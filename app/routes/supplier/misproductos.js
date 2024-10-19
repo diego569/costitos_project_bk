@@ -66,4 +66,15 @@ router.post("/productfeatures", Misproductos.addProductFeature);
 
 router.post("/addfeaturetoproduct", Misproductos.addFeatureToProduct);
 
+router.delete("/delete/:supplierProductId", Misproductos.deleteSupplierProduct);
+
+router.put(
+  "/update/price/:supplier_product_id",
+  Misproductos.updateProductPrice
+);
+router.put(
+  "/update/unit-of-measure/:supplier_product_id",
+  Misproductos.updateProductUnitOfMeasure
+);
+
 module.exports = router;
