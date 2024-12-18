@@ -1,41 +1,61 @@
 "use strict";
-/** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("Payments", {
+    await queryInterface.createTable("SupplierProducts", {
       id: {
         allowNull: false,
         primaryKey: true,
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4,
       },
-      userId: {
+      supplierId: {
         allowNull: false,
+        type: Sequelize.UUID,
+        references: {
+          model: "Suppliers",
+          key: "id",
+        },
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE",
+      },
+      productId: {
+        allowNull: false,
+        type: Sequelize.UUID,
+        references: {
+          model: "Products",
+          key: "id",
+        },
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE",
+      },
+      slug: {
+        allowNull: false,
+        unique: true,
+        type: Sequelize.STRING,
+      },
+      price: {
+        allowNull: false,
+        type: Sequelize.DECIMAL,
+      },
+      status: {
+        allowNull: false,
+        type: Sequelize.STRING,
+      },
+      adminAuthorizedId: {
+        allowNull: true,
         type: Sequelize.UUID,
         references: {
           model: "Users",
           key: "id",
         },
         onUpdate: "CASCADE",
-        onDelete: "CASCADE",
+        onDelete: "SET NULL",
       },
-      amount: {
-        allowNull: false,
-        type: Sequelize.DECIMAL,
-      },
-      date: {
-        allowNull: false,
-        type: Sequelize.DATE,
-        defaultValue: Sequelize.NOW,
-      },
-      paymentType: {
-        allowNull: false,
-        type: Sequelize.STRING,
-      },
-      adminAuthorizedId: {
+      unitOfMeasureId: {
+        allowNull: true,
         type: Sequelize.UUID,
         references: {
-          model: "Users",
+          model: "UnitOfMeasure",
           key: "id",
         },
         onUpdate: "CASCADE",
@@ -54,6 +74,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("Payments");
+    await queryInterface.dropTable("SupplierProducts");
   },
 };

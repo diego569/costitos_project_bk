@@ -2,6 +2,7 @@ const { Sequelize, DataTypes } = require("sequelize");
 const config = require("../../config/config");
 const sequelize = new Sequelize(config.development);
 const User = require("./user");
+const Area = require("./area");
 
 const Quotation = sequelize.define(
   "Quotation",
@@ -20,6 +21,14 @@ const Quotation = sequelize.define(
       },
       allowNull: false,
     },
+    areaId: {
+      type: DataTypes.UUID,
+      references: {
+        model: Area,
+        key: "id",
+      },
+      allowNull: false,
+    },
     name: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -29,7 +38,7 @@ const Quotation = sequelize.define(
       allowNull: false,
     },
     price: {
-      type: DataTypes.NUMERIC,
+      type: DataTypes.DECIMAL,
       allowNull: false,
     },
     status: {
@@ -43,16 +52,19 @@ const Quotation = sequelize.define(
     },
     quotationNumber: {
       type: DataTypes.INTEGER,
-      autoIncrement: true,
+      allowNull: false,
       unique: true,
+      autoIncrement: true,
     },
     createdAt: {
       type: DataTypes.DATE,
       allowNull: false,
+      defaultValue: Sequelize.NOW,
     },
     updatedAt: {
       type: DataTypes.DATE,
       allowNull: false,
+      defaultValue: Sequelize.NOW,
     },
   },
   {

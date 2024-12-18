@@ -1,35 +1,19 @@
 "use strict";
-/** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("ProductFeatures", {
+    await queryInterface.createTable("UnitOfMeasure", {
       id: {
         allowNull: false,
         primaryKey: true,
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4,
       },
-      productId: {
-        allowNull: false,
-        type: Sequelize.UUID,
-        references: {
-          model: "Products",
-          key: "id",
-        },
-        onUpdate: "CASCADE",
-        onDelete: "CASCADE",
-      },
-      featureId: {
-        allowNull: false,
-        type: Sequelize.UUID,
-        references: {
-          model: "Features",
-          key: "id",
-        },
-        onUpdate: "CASCADE",
-        onDelete: "CASCADE",
-      },
       value: {
+        allowNull: false,
+        unique: true,
+        type: Sequelize.STRING,
+      },
+      name: {
         allowNull: false,
         type: Sequelize.STRING,
       },
@@ -46,6 +30,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("ProductFeatures");
+    await queryInterface.dropTable("UnitOfMeasure");
   },
 };

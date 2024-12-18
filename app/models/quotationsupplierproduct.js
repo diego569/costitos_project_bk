@@ -30,16 +30,18 @@ const QuotationSupplierProduct = sequelize.define(
       allowNull: false,
     },
     unitPrice: {
-      type: DataTypes.NUMERIC,
+      type: DataTypes.DECIMAL,
       allowNull: false,
     },
     createdAt: {
       type: DataTypes.DATE,
       allowNull: false,
+      defaultValue: Sequelize.NOW,
     },
     updatedAt: {
       type: DataTypes.DATE,
       allowNull: false,
+      defaultValue: Sequelize.NOW,
     },
   },
   {
@@ -52,6 +54,7 @@ QuotationSupplierProduct.belongsTo(QuotationProduct, {
   foreignKey: "quotationProductId",
   as: "quotationProduct",
 });
+
 QuotationSupplierProduct.belongsTo(Supplier, {
   foreignKey: "supplierId",
   as: "supplier",

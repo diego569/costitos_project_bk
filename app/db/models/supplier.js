@@ -13,58 +13,35 @@ module.exports = (sequelize, DataTypes) => {
   }
   Supplier.init(
     {
-      id: {
-        type: DataTypes.UUID,
-        primaryKey: true,
-        allowNull: false,
-      },
-      name: {
-        type: DataTypes.STRING,
-        allowNull: false,
-      },
+      id: DataTypes.UUID,
+      name: DataTypes.STRING,
+      ruc: DataTypes.STRING,
+      email: DataTypes.STRING,
+      password: DataTypes.STRING,
       phone: DataTypes.STRING,
-      legalRepresentative: {
-        type: DataTypes.STRING,
-        allowNull: false,
-      },
-      businessName: {
-        type: DataTypes.STRING,
-        allowNull: false,
-      },
-      economicActivity: {
-        type: DataTypes.STRING,
-        allowNull: false,
-      },
-      fiscalAddress: {
-        type: DataTypes.STRING,
-        allowNull: false,
-      },
-      ruc: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        unique: true,
-      },
-      imageId: DataTypes.UUID,
-      email: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        unique: true,
-      },
-      cellphone: {
-        type: DataTypes.STRING,
-        allowNull: false,
-      },
+      enabled: DataTypes.BOOLEAN,
       role: DataTypes.STRING,
-
-      password: {
-        type: DataTypes.STRING,
-        allowNull: false,
-      },
-      enabled: {
-        type: DataTypes.BOOLEAN,
-        allowNull: false,
-      },
       adminAuthorizedId: DataTypes.UUID,
+      imageId: DataTypes.UUID,
+      contributorType: DataTypes.STRING,
+      documentType: DataTypes.STRING,
+      commercialName: DataTypes.STRING,
+      registrationDate: DataTypes.DATE,
+      activityStartDate: DataTypes.DATE,
+      contributorStatus: DataTypes.STRING,
+      contributorCondition: DataTypes.STRING,
+      fiscalAddress: DataTypes.STRING,
+      invoiceEmissionSystem: DataTypes.STRING,
+      foreignTradeActivity: DataTypes.STRING,
+      accountingSystem: DataTypes.STRING,
+      mainEconomicActivity: DataTypes.STRING,
+      secondaryEconomicActivity1: DataTypes.STRING,
+      authorizedPaymentReceipts: DataTypes.STRING,
+      electronicEmissionSystem: DataTypes.STRING,
+      electronicIssuerSince: DataTypes.DATE,
+      electronicReceipts: DataTypes.STRING,
+      affiliatedToPLE: DataTypes.BOOLEAN,
+      registries: DataTypes.STRING,
     },
     {
       sequelize,

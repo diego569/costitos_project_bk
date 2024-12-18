@@ -1,9 +1,9 @@
 const { Sequelize, DataTypes } = require("sequelize");
 const config = require("../../config/config");
 const sequelize = new Sequelize(config.development);
-const Image = require("./image");
 const Subcategory = require("./subcategory");
 const Supplier = require("./supplier");
+const Image = require("./image");
 const User = require("./user");
 
 const Product = sequelize.define(
@@ -17,11 +17,12 @@ const Product = sequelize.define(
     },
     name: {
       type: DataTypes.STRING,
-      allowNull: true,
+      allowNull: false,
     },
     slug: {
       type: DataTypes.STRING,
-      allowNull: true,
+      allowNull: false,
+      unique: true,
     },
     description: {
       type: DataTypes.TEXT,
@@ -45,7 +46,7 @@ const Product = sequelize.define(
     },
     status: {
       type: DataTypes.STRING,
-      allowNull: true,
+      allowNull: false,
     },
     supplierId: {
       type: DataTypes.UUID,
@@ -74,10 +75,12 @@ const Product = sequelize.define(
     createdAt: {
       type: DataTypes.DATE,
       allowNull: false,
+      defaultValue: Sequelize.NOW,
     },
     updatedAt: {
       type: DataTypes.DATE,
       allowNull: false,
+      defaultValue: Sequelize.NOW,
     },
   },
   {
@@ -87,11 +90,14 @@ const Product = sequelize.define(
 );
 
 Product.belongsTo(Image, { foreignKey: "imageId", as: "image" });
+
 Product.belongsTo(Subcategory, {
   foreignKey: "subcategoryId",
   as: "subcategory",
 });
+
 Product.belongsTo(Supplier, { foreignKey: "supplierId", as: "supplier" });
+
 Product.belongsTo(User, {
   foreignKey: "adminAuthorizedId",
   as: "adminAuthorized",

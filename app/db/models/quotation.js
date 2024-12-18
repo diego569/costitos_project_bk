@@ -1,5 +1,7 @@
-"use strict";
-const { Model } = require("sequelize");
+'use strict';
+const {
+  Model
+} = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class Quotation extends Model {
     /**
@@ -11,56 +13,19 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
     }
   }
-  Quotation.init(
-    {
-      id: {
-        type: DataTypes.UUID,
-        defaultValue: DataTypes.UUIDV4,
-        primaryKey: true,
-        allowNull: false,
-      },
-      userId: {
-        type: DataTypes.UUID,
-        allowNull: false,
-        references: {
-          model: "Users",
-          key: "id",
-        },
-        onUpdate: "CASCADE",
-        onDelete: "CASCADE",
-      },
-      name: {
-        type: DataTypes.STRING,
-        allowNull: false,
-      },
-      type: {
-        type: DataTypes.STRING,
-        allowNull: false,
-      },
-      price: {
-        type: DataTypes.DECIMAL,
-        allowNull: false,
-      },
-      status: {
-        type: DataTypes.STRING,
-        allowNull: false,
-      },
-      quotationCount: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        defaultValue: 0,
-      },
-      quotationNumber: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        autoIncrement: true,
-        unique: true,
-      },
-    },
-    {
-      sequelize,
-      modelName: "Quotation",
-    }
-  );
+  Quotation.init({
+    id: DataTypes.UUID,
+    userId: DataTypes.UUID,
+    areaId: DataTypes.UUID,
+    name: DataTypes.STRING,
+    type: DataTypes.STRING,
+    price: DataTypes.DECIMAL,
+    status: DataTypes.STRING,
+    quotationCount: DataTypes.INTEGER,
+    quotationNumber: DataTypes.INTEGER
+  }, {
+    sequelize,
+    modelName: 'Quotation',
+  });
   return Quotation;
 };

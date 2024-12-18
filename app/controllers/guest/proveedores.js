@@ -13,21 +13,39 @@ const getSuppliers = async (req, res) => {
       SELECT
         s.id AS supplier_id,
         s.name AS supplier_name,
-        s.phone AS supplier_phone,
-        s."legalRepresentative" AS legal_representative,
-        s."businessName" AS business_name,
-        s."economicActivity" AS economic_activity,
-        s."fiscalAddress" AS fiscal_address,
         s.ruc AS supplier_ruc,
         s.email AS supplier_email,
-        s.cellphone AS supplier_cellphone,
-        i.url AS supplier_image,
+        s."enabled" AS supplier_enabled,
+        s."role" AS supplier_role,
+        s."contributorType" AS contributor_type,
+        s."documentType" AS document_type,
+        s."commercialName" AS commercial_name,
+        s."registrationDate" AS registration_date,
+        s."activityStartDate" AS activity_start_date,
+        s."contributorStatus" AS contributor_status,
+        s."contributorCondition" AS contributor_condition,
+        s."fiscalAddress" AS fiscal_address,
+        s."invoiceEmissionSystem" AS invoice_emission_system,
+        s."foreignTradeActivity" AS foreign_trade_activity,
+        s."accountingSystem" AS accounting_system,
+        s."mainEconomicActivity" AS main_economic_activity,
+        s."secondaryEconomicActivity1" AS secondary_economic_activity1,
+        s."authorizedPaymentReceipts" AS authorized_payment_receipts,
+        s."electronicEmissionSystem" AS electronic_emission_system,
+        s."electronicIssuerSince" AS electronic_issuer_since,
+        s."electronicReceipts" AS electronic_receipts,
+        s."affiliatedToPLE" AS affiliated_to_ple,
+        s."registries" AS registries,
         s."createdAt" AS created_at,
-        s."updatedAt" AS updated_at
+        s."updatedAt" AS updated_at,
+        i.url AS supplier_image,
+        u.email AS admin_authorized_email
       FROM
         public."Suppliers" s
       LEFT JOIN
         public."Images" i ON s."imageId" = i.id
+      LEFT JOIN
+        public."Users" u ON s."adminAuthorizedId" = u.id
       ORDER BY
         s."createdAt" DESC
       `,
@@ -40,17 +58,33 @@ const getSuppliers = async (req, res) => {
       data: suppliers.map((s) => ({
         id: s.supplier_id,
         name: s.supplier_name,
-        phone: s.supplier_phone,
-        legalRepresentative: s.legal_representative,
-        businessName: s.business_name,
-        economicActivity: s.economic_activity,
-        fiscalAddress: s.fiscal_address,
         ruc: s.supplier_ruc,
         email: s.supplier_email,
-        cellphone: s.supplier_cellphone,
-        image: s.supplier_image,
+        enabled: s.supplier_enabled,
+        role: s.supplier_role,
+        contributorType: s.contributor_type,
+        documentType: s.document_type,
+        commercialName: s.commercial_name,
+        registrationDate: s.registration_date,
+        activityStartDate: s.activity_start_date,
+        contributorStatus: s.contributor_status,
+        contributorCondition: s.contributor_condition,
+        fiscalAddress: s.fiscal_address,
+        invoiceEmissionSystem: s.invoice_emission_system,
+        foreignTradeActivity: s.foreign_trade_activity,
+        accountingSystem: s.accounting_system,
+        mainEconomicActivity: s.main_economic_activity,
+        secondaryEconomicActivity1: s.secondary_economic_activity1,
+        authorizedPaymentReceipts: s.authorized_payment_receipts,
+        electronicEmissionSystem: s.electronic_emission_system,
+        electronicIssuerSince: s.electronic_issuer_since,
+        electronicReceipts: s.electronic_receipts,
+        affiliatedToPLE: s.affiliated_to_ple,
+        registries: s.registries,
         createdAt: s.created_at,
         updatedAt: s.updated_at,
+        image: s.supplier_image,
+        adminAuthorizedEmail: s.admin_authorized_email,
       })),
       count: suppliers.length,
     });
@@ -59,6 +93,7 @@ const getSuppliers = async (req, res) => {
     res.status(500).json({ error: "Error interno del servidor" });
   }
 };
+
 const getCategoriesBySupplier = async (req, res) => {
   const { supplierId } = req.params;
   try {

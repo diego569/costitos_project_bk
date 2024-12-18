@@ -63,18 +63,18 @@ const getQuotationDetails = async (req, res) => {
           p.name AS "productName",
           p.description AS "productDescription",
           i.url AS "productPhoto",
-          uom.name AS "productUnitOfMeasure",  
+          uom.value AS "productUnitOfMeasure",  -- Cambiado a 'value'
           qp.quantity AS "productQuantity",
           qsp."supplierId",
           s.name AS "supplierName",
           s.email AS "supplierEmail",
           s.ruc AS "supplierRuc",
           s."fiscalAddress" AS "supplierAddress",
-          s.cellphone AS "supplierPhone",
+          s."phone" AS "supplierPhone",
           qsp."unitPrice" AS "supplierUnitPrice",
           q."createdAt",
-          to_char(q."createdAt", 'DD Mon YYYY HH24:MI:SS') AS "formattedDate",  
-          (sp."adminAuthorizedId" IS NOT NULL) AS "isAuthorized"  
+          to_char(q."createdAt", 'DD Mon YYYY HH24:MI:SS') AS "formattedDate",
+          (sp."adminAuthorizedId" IS NOT NULL) AS "isAuthorized"
         FROM
           public."Quotations" q
         LEFT JOIN
@@ -90,7 +90,7 @@ const getQuotationDetails = async (req, res) => {
         LEFT JOIN
           public."Images" i ON p."imageId" = i.id
         LEFT JOIN
-          public."UnitOfMeasure" uom ON sp."unitOfMeasureId" = uom.id   
+          public."UnitOfMeasure" uom ON sp."unitOfMeasureId" = uom.id
         WHERE
           q.id = :quotationId
       `,

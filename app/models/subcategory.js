@@ -19,6 +19,7 @@ const Subcategory = sequelize.define(
     slug: {
       type: DataTypes.STRING,
       allowNull: false,
+      unique: true,
     },
     photo: {
       type: DataTypes.STRING,
@@ -35,10 +36,12 @@ const Subcategory = sequelize.define(
     createdAt: {
       type: DataTypes.DATE,
       allowNull: false,
+      defaultValue: Sequelize.NOW,
     },
     updatedAt: {
       type: DataTypes.DATE,
       allowNull: false,
+      defaultValue: Sequelize.NOW,
     },
   },
   {

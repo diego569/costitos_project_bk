@@ -3,6 +3,7 @@ const config = require("../../config/config");
 const sequelize = new Sequelize(config.development);
 const Supplier = require("./supplier");
 const Product = require("./product");
+const UnitOfMeasure = require("./unitofmeasure");
 const User = require("./user");
 
 const SupplierProduct = sequelize.define(
@@ -33,12 +34,13 @@ const SupplierProduct = sequelize.define(
     slug: {
       type: DataTypes.STRING,
       allowNull: false,
+      unique: true,
     },
     price: {
-      type: DataTypes.NUMERIC,
+      type: DataTypes.DECIMAL,
       allowNull: false,
     },
-    unitOfMeasure: {
+    status: {
       type: DataTypes.STRING,
       allowNull: false,
     },
@@ -50,17 +52,23 @@ const SupplierProduct = sequelize.define(
       },
       allowNull: true,
     },
-    status: {
-      type: DataTypes.STRING,
-      allowNull: false,
+    unitOfMeasureId: {
+      type: DataTypes.UUID,
+      references: {
+        model: UnitOfMeasure,
+        key: "id",
+      },
+      allowNull: true,
     },
     createdAt: {
       type: DataTypes.DATE,
       allowNull: false,
+      defaultValue: Sequelize.NOW,
     },
     updatedAt: {
       type: DataTypes.DATE,
       allowNull: false,
+      defaultValue: Sequelize.NOW,
     },
   },
   {
@@ -73,7 +81,9 @@ SupplierProduct.belongsTo(Supplier, {
   foreignKey: "supplierId",
   as: "supplier",
 });
+
 SupplierProduct.belongsTo(Product, { foreignKey: "productId", as: "product" });
+
 SupplierProduct.belongsTo(User, {
   foreignKey: "adminAuthorizedId",
   as: "adminAuthorized",

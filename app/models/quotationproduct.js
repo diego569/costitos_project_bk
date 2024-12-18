@@ -36,10 +36,12 @@ const QuotationProduct = sequelize.define(
     createdAt: {
       type: DataTypes.DATE,
       allowNull: false,
+      defaultValue: Sequelize.NOW,
     },
     updatedAt: {
       type: DataTypes.DATE,
       allowNull: false,
+      defaultValue: Sequelize.NOW,
     },
   },
   {
@@ -52,6 +54,7 @@ QuotationProduct.belongsTo(Quotation, {
   foreignKey: "quotationId",
   as: "quotation",
 });
+
 QuotationProduct.belongsTo(Product, { foreignKey: "productId", as: "product" });
 
 module.exports = QuotationProduct;

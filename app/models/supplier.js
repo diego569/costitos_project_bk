@@ -1,8 +1,8 @@
 const { Sequelize, DataTypes } = require("sequelize");
 const config = require("../../config/config");
 const sequelize = new Sequelize(config.development);
-const Image = require("./image");
 const User = require("./user");
+const Image = require("./image");
 
 const Supplier = sequelize.define(
   "Supplier",
@@ -15,26 +15,6 @@ const Supplier = sequelize.define(
     },
     name: {
       type: DataTypes.STRING,
-      allowNull: false,
-    },
-    phone: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    legalRepresentative: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    businessName: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    economicActivity: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    fiscalAddress: {
-      type: DataTypes.STRING,
       allowNull: true,
     },
     ruc: {
@@ -42,26 +22,10 @@ const Supplier = sequelize.define(
       allowNull: false,
       unique: true,
     },
-    imageId: {
-      type: DataTypes.UUID,
-      references: {
-        model: Image,
-        key: "id",
-      },
-      allowNull: true,
-    },
-    role: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
     email: {
       type: DataTypes.STRING,
       allowNull: false,
       unique: true,
-    },
-    cellphone: {
-      type: DataTypes.STRING,
-      allowNull: true,
     },
     password: {
       type: DataTypes.STRING,
@@ -69,8 +33,12 @@ const Supplier = sequelize.define(
     },
     enabled: {
       type: DataTypes.BOOLEAN,
-      allowNull: false,
       defaultValue: true,
+      allowNull: false,
+    },
+    role: {
+      type: DataTypes.STRING,
+      allowNull: false,
     },
     adminAuthorizedId: {
       type: DataTypes.UUID,
@@ -80,13 +48,99 @@ const Supplier = sequelize.define(
       },
       allowNull: true,
     },
+    imageId: {
+      type: DataTypes.UUID,
+      references: {
+        model: Image,
+        key: "id",
+      },
+      allowNull: true,
+    },
+    contributorType: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    documentType: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    commercialName: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    registrationDate: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    activityStartDate: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    contributorStatus: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    contributorCondition: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    fiscalAddress: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    invoiceEmissionSystem: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    foreignTradeActivity: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    accountingSystem: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    mainEconomicActivity: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    secondaryEconomicActivity1: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    authorizedPaymentReceipts: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    electronicEmissionSystem: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    electronicIssuerSince: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    electronicReceipts: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    affiliatedToPLE: {
+      type: DataTypes.BOOLEAN,
+      allowNull: true,
+    },
+    registries: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
     createdAt: {
       type: DataTypes.DATE,
       allowNull: false,
+      defaultValue: Sequelize.NOW,
     },
     updatedAt: {
       type: DataTypes.DATE,
       allowNull: false,
+      defaultValue: Sequelize.NOW,
     },
   },
   {

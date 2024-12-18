@@ -20,3 +20,5 @@ logs
 !.env.example
 
 example
+
+# app/db

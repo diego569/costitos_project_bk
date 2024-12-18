@@ -21,7 +21,7 @@ const Payment = sequelize.define(
       allowNull: false,
     },
     amount: {
-      type: DataTypes.NUMERIC,
+      type: DataTypes.DECIMAL,
       allowNull: false,
     },
     date: {
@@ -43,10 +43,12 @@ const Payment = sequelize.define(
     createdAt: {
       type: DataTypes.DATE,
       allowNull: false,
+      defaultValue: Sequelize.NOW,
     },
     updatedAt: {
       type: DataTypes.DATE,
       allowNull: false,
+      defaultValue: Sequelize.NOW,
     },
   },
   {
@@ -56,6 +58,7 @@ const Payment = sequelize.define(
 );
 
 Payment.belongsTo(User, { foreignKey: "userId", as: "user" });
+
 Payment.belongsTo(User, {
   foreignKey: "adminAuthorizedId",
   as: "adminAuthorized",

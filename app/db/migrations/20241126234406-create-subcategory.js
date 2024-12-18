@@ -1,5 +1,4 @@
 "use strict";
-/** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable("Subcategories", {
@@ -15,13 +14,15 @@ module.exports = {
       },
       slug: {
         allowNull: false,
+        unique: true,
         type: Sequelize.STRING,
       },
       photo: {
+        allowNull: true,
         type: Sequelize.STRING,
       },
       categoryId: {
-        allowNull: true,
+        allowNull: false,
         type: Sequelize.UUID,
         references: {
           model: "Categories",

@@ -1,19 +1,18 @@
 "use strict";
-/** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("QuotationSupplierProducts", {
+    await queryInterface.createTable("ProductHistories", {
       id: {
         allowNull: false,
         primaryKey: true,
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4,
       },
-      quotationProductId: {
+      productId: {
         allowNull: false,
         type: Sequelize.UUID,
         references: {
-          model: "QuotationProducts",
+          model: "Products",
           key: "id",
         },
         onUpdate: "CASCADE",
@@ -29,9 +28,35 @@ module.exports = {
         onUpdate: "CASCADE",
         onDelete: "CASCADE",
       },
-      unitPrice: {
+      action: {
         allowNull: false,
+        type: Sequelize.STRING,
+      },
+      previousPrice: {
+        allowNull: true,
         type: Sequelize.DECIMAL,
+      },
+      newPrice: {
+        allowNull: true,
+        type: Sequelize.DECIMAL,
+      },
+      date: {
+        allowNull: false,
+        type: Sequelize.DATE,
+      },
+      adminId: {
+        allowNull: true,
+        type: Sequelize.UUID,
+        references: {
+          model: "Users",
+          key: "id",
+        },
+        onUpdate: "CASCADE",
+        onDelete: "SET NULL",
+      },
+      description: {
+        allowNull: true,
+        type: Sequelize.TEXT,
       },
       createdAt: {
         allowNull: false,
@@ -46,6 +71,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("QuotationSupplierProducts");
+    await queryInterface.dropTable("ProductHistories");
   },
 };

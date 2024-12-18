@@ -1,20 +1,20 @@
 "use strict";
-/** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("Features", {
+    await queryInterface.createTable("Images", {
       id: {
         allowNull: false,
         primaryKey: true,
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4,
       },
-      name: {
-        allowNull: false,
+      url: {
+        allowNull: true,
         type: Sequelize.STRING,
       },
-      description: {
-        type: Sequelize.TEXT,
+      filename: {
+        allowNull: true,
+        type: Sequelize.STRING,
       },
       createdAt: {
         allowNull: false,
@@ -29,6 +29,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("Features");
+    await queryInterface.dropTable("Images");
   },
 };

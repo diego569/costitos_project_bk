@@ -52,10 +52,12 @@ const UserSupplierHistory = sequelize.define(
     createdAt: {
       type: DataTypes.DATE,
       allowNull: false,
+      defaultValue: Sequelize.NOW,
     },
     updatedAt: {
       type: DataTypes.DATE,
       allowNull: false,
+      defaultValue: Sequelize.NOW,
     },
   },
   {
@@ -65,10 +67,12 @@ const UserSupplierHistory = sequelize.define(
 );
 
 UserSupplierHistory.belongsTo(User, { foreignKey: "userId", as: "user" });
+
 UserSupplierHistory.belongsTo(Supplier, {
   foreignKey: "supplierId",
   as: "supplier",
 });
+
 UserSupplierHistory.belongsTo(User, { foreignKey: "adminId", as: "admin" });
 
 module.exports = UserSupplierHistory;

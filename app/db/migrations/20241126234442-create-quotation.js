@@ -1,69 +1,59 @@
 "use strict";
-/** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("Users", {
+    await queryInterface.createTable("Quotations", {
       id: {
         allowNull: false,
         primaryKey: true,
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4,
       },
-      firstName: {
+      userId: {
         allowNull: false,
-        type: Sequelize.STRING,
-      },
-      lastName: {
-        allowNull: false,
-        type: Sequelize.STRING,
-      },
-      phone: {
-        allowNull: true,
-        type: Sequelize.STRING,
-      },
-      email: {
-        allowNull: false,
-        type: Sequelize.STRING,
-        unique: true,
-      },
-      dni: {
-        allowNull: false,
-        type: Sequelize.STRING,
-        unique: true,
-      },
-      imageId: {
         type: Sequelize.UUID,
         references: {
-          model: "Images",
+          model: "Users",
           key: "id",
         },
         onUpdate: "CASCADE",
-        onDelete: "SET NULL",
+        onDelete: "CASCADE",
       },
-      password: {
+      areaId: {
+        allowNull: false,
+        type: Sequelize.UUID,
+        references: {
+          model: "Areas",
+          key: "id",
+        },
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE",
+      },
+      name: {
         allowNull: false,
         type: Sequelize.STRING,
       },
-      enabled: {
-        allowNull: false,
-        type: Sequelize.BOOLEAN,
-        defaultValue: true,
-      },
-      role: {
+      type: {
         allowNull: false,
         type: Sequelize.STRING,
       },
-      paymentType: {
+      price: {
+        allowNull: false,
+        type: Sequelize.DECIMAL,
+      },
+      status: {
         allowNull: false,
         type: Sequelize.STRING,
-      },
-      lastPaymentDate: {
-        type: Sequelize.DATE,
       },
       quotationCount: {
         allowNull: false,
         type: Sequelize.INTEGER,
         defaultValue: 0,
+      },
+      quotationNumber: {
+        allowNull: false,
+        type: Sequelize.INTEGER,
+        autoIncrement: true,
+        unique: true,
       },
       createdAt: {
         allowNull: false,
@@ -78,6 +68,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("Users");
+    await queryInterface.dropTable("Quotations");
   },
 };

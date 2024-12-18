@@ -20,10 +20,6 @@ const User = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    phone: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
     email: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -34,22 +30,18 @@ const User = sequelize.define(
       allowNull: false,
       unique: true,
     },
-    imageId: {
-      type: DataTypes.UUID,
-      references: {
-        model: Image,
-        key: "id",
-      },
-      allowNull: true,
-    },
     password: {
       type: DataTypes.STRING,
       allowNull: false,
     },
+    phone: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
     enabled: {
       type: DataTypes.BOOLEAN,
-      allowNull: false,
       defaultValue: true,
+      allowNull: false,
     },
     role: {
       type: DataTypes.STRING,
@@ -66,14 +58,25 @@ const User = sequelize.define(
     quotationCount: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      defaultValue: 0,
+    },
+    imageId: {
+      type: DataTypes.UUID,
+      allowNull: true,
+      references: {
+        model: Image,
+        key: "id",
+      },
     },
     createdAt: {
       type: DataTypes.DATE,
       allowNull: false,
+      defaultValue: Sequelize.NOW,
     },
     updatedAt: {
       type: DataTypes.DATE,
       allowNull: false,
+      defaultValue: Sequelize.NOW,
     },
   },
   {

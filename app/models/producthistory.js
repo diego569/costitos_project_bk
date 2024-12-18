@@ -35,11 +35,11 @@ const ProductHistory = sequelize.define(
       allowNull: false,
     },
     previousPrice: {
-      type: DataTypes.NUMERIC,
+      type: DataTypes.DECIMAL,
       allowNull: true,
     },
     newPrice: {
-      type: DataTypes.NUMERIC,
+      type: DataTypes.DECIMAL,
       allowNull: true,
     },
     date: {
@@ -61,10 +61,12 @@ const ProductHistory = sequelize.define(
     createdAt: {
       type: DataTypes.DATE,
       allowNull: false,
+      defaultValue: Sequelize.NOW,
     },
     updatedAt: {
       type: DataTypes.DATE,
       allowNull: false,
+      defaultValue: Sequelize.NOW,
     },
   },
   {
@@ -74,10 +76,12 @@ const ProductHistory = sequelize.define(
 );
 
 ProductHistory.belongsTo(Product, { foreignKey: "productId", as: "product" });
+
 ProductHistory.belongsTo(Supplier, {
   foreignKey: "supplierId",
   as: "supplier",
 });
+
 ProductHistory.belongsTo(User, { foreignKey: "adminId", as: "admin" });
 
 module.exports = ProductHistory;

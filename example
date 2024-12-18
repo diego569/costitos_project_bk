@@ -4,23 +4,26 @@ MODELS / MIGRATIONS
 
 npx sequelize-cli model:generate --name Image --attributes id:uuid,url:string,filename:string --force
 
-npx sequelize-cli model:generate --name User --attributes id:uuid,firstName:string,lastName:string,email:string,dni:string,password:string,enabled:boolean,userType:string,paymentType:string,lastPaymentDate:date,quotationCount:integer --force
+npx sequelize-cli model:generate --name User --attributes id:uuid,firstName:string,lastName:string,email:string,dni:string,password:string,phone:string,enabled:boolean,role:string,paymentType:string,lastPaymentDate:date,quotationCount:integer,imageId:uuid --force
 
-npx sequelize-cli model:generate --name Supplier --attributes id:uuid,name:string,ruc:string,email:string,password:string,enabled:boolean,adminAuthorizedId:uuid --force
+npx sequelize-cli model:generate --name Supplier --attributes id:uuid,name:string,ruc:string,email:string,password:string,enabled:boolean,role:string,adminAuthorizedId:uuid,imageId:uuid,contributorType:string,documentType:string,commercialName:string,registrationDate:date,activityStartDate:date,contributorStatus:string,contributorCondition:string,fiscalAddress:string,invoiceEmissionSystem:string,foreignTradeActivity:string,accountingSystem:string,mainEconomicActivity:string,secondaryEconomicActivity1:string,authorizedPaymentReceipts:string,electronicEmissionSystem:string,electronicIssuerSince:date,electronicReceipts:string,affiliatedToPLE:boolean,registries:string --force
 
-npx sequelize-cli model:generate --name Category --attributes id:uuid,name:string --force
+npx sequelize-cli model:generate --name Structure --attributes id:uuid,name:string,description:text,userId:uuid --force
 
-npx sequelize-cli model:generate --name Subcategory --attributes id:uuid,name:string,categoryId:uuid --force
+npx sequelize-cli model:generate --name Area --attributes id:uuid,name:string,description:text,structureId:uuid --force
 
-npx sequelize-cli model:generate --name Product --attributes id:uuid,name:string,description:text,photo:string,subcategoryId:uuid,status:string,supplierId:uuid,adminAuthorizedId:uuid,creationDate:date,authorizationDate:date --force
+npx sequelize-cli model:generate --name Category --attributes id:uuid,name:string,slug:string,photo:string --force
 
-npx sequelize-cli model:generate --name Feature --attributes id:uuid,name:string --force
+npx sequelize-cli model:generate --name Subcategory --attributes id:uuid,name:string,slug:string,photo:string,categoryId:uuid --force
+
+npx sequelize-cli model:generate --name Product --attributes id:uuid,name:string,slug:string,description:text,imageId:uuid,subcategoryId:uuid,status:string,supplierId:uuid,adminAuthorizedId:uuid,creationDate:date,authorizationDate:date --force
+
+
+npx sequelize-cli model:generate --name Feature --attributes id:uuid,name:string,description:text --force
 
 npx sequelize-cli model:generate --name ProductFeature --attributes id:uuid,productId:uuid,featureId:uuid,value:string --force
 
-npx sequelize-cli model:generate --name SupplierProduct --attributes id:uuid,supplierId:uuid,productId:uuid,price:decimal,updateDate:date,adminAuthorizedId:uuid,status:string --force
-
-npx sequelize-cli model:generate --name Quotation --attributes id:uuid,userId:uuid,name:string,date:date,type:string,price:decimal,status:string,quotationCount:integer --force
+npx sequelize-cli model:generate --name Quotation --attributes id:uuid,userId:uuid,areaId:uuid,name:string,type:string,price:decimal,status:string,quotationCount:integer,quotationNumber:integer --force
 
 npx sequelize-cli model:generate --name QuotationProduct --attributes id:uuid,quotationId:uuid,productId:uuid,quantity:integer --force
 
@@ -30,7 +33,20 @@ npx sequelize-cli model:generate --name Payment --attributes id:uuid,userId:uuid
 
 npx sequelize-cli model:generate --name ProductHistory --attributes id:uuid,productId:uuid,supplierId:uuid,action:string,previousPrice:decimal,newPrice:decimal,date:date,adminId:uuid,description:text --force
 
-npx sequelize-cli model:generate --name UserSupplierHistory --attributes id:uuid,entityType:string,entityId:uuid,action:string,date:date,adminId:uuid --force
+npx sequelize-cli model:generate --name UserSupplierHistory --attributes id:uuid,userId:uuid,supplierId:uuid,action:string,date:date,adminId:uuid,description:text --force
+
+npx sequelize-cli model:generate --name UnitOfMeasure --attributes id:uuid,value:string,name:string --force
+
+npx sequelize-cli model:generate --name SupplierProduct --attributes id:uuid,supplierId:uuid,productId:uuid,slug:string,price:decimal,status:string,adminAuthorizedId:uuid,unitOfMeasureId:uuid --force
+
+
+
+
+
+
+
+
+
 
 
 
@@ -42,26 +58,46 @@ npx sequelize-cli db:migrate:undo:all --to XXXXXXXXXXXXXX-create-posts.js
 
 SEEDERS
 
+# npx sequelize-cli seed:generate --name demo-image
+# npx sequelize-cli seed:generate --name demo-user
+# npx sequelize-cli seed:generate --name demo-supplier
+# npx sequelize-cli seed:generate --name demo-category
+# npx sequelize-cli seed:generate --name demo-subcategory
+# npx sequelize-cli seed:generate --name demo-product
+# npx sequelize-cli seed:generate --name demo-feature
+# npx sequelize-cli seed:generate --name demo-product-feature
+# npx sequelize-cli seed:generate --name demo-supplier-product
+# npx sequelize-cli seed:generate --name demo-quotation
+# npx sequelize-cli seed:generate --name demo-quotation-product
+# npx sequelize-cli seed:generate --name demo-quotation-supplier-product
+# npx sequelize-cli seed:generate --name demo-payment
+# npx sequelize-cli seed:generate --name demo-product-history
+# npx sequelize-cli seed:generate --name demo-user-supplier-history
+
+
+
 npx sequelize-cli seed:generate --name demo-image
 npx sequelize-cli seed:generate --name demo-user
 npx sequelize-cli seed:generate --name demo-supplier
+npx sequelize-cli seed:generate --name demo-structure
+npx sequelize-cli seed:generate --name demo-area
 npx sequelize-cli seed:generate --name demo-category
 npx sequelize-cli seed:generate --name demo-subcategory
 npx sequelize-cli seed:generate --name demo-product
 npx sequelize-cli seed:generate --name demo-feature
 npx sequelize-cli seed:generate --name demo-product-feature
-npx sequelize-cli seed:generate --name demo-supplier-product
 npx sequelize-cli seed:generate --name demo-quotation
 npx sequelize-cli seed:generate --name demo-quotation-product
 npx sequelize-cli seed:generate --name demo-quotation-supplier-product
 npx sequelize-cli seed:generate --name demo-payment
 npx sequelize-cli seed:generate --name demo-product-history
 npx sequelize-cli seed:generate --name demo-user-supplier-history
+npx sequelize-cli seed:generate --name demo-unit-of-measure
+npx sequelize-cli seed:generate --name demo-supplier-product
 
 
 
-
-
+Okey ahora que tienes la nueva versión de mis tablas en mi bbdd, te pasare tablas antiguas pero mejoras a las nuevas y si son iguales me das igual, pero ahora son los seeders, de faker en la ultima versiones 
 
 
 SEED

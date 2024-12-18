@@ -1,19 +1,18 @@
 "use strict";
-/** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("UserSupplierHistories", {
+    await queryInterface.createTable("QuotationSupplierProducts", {
       id: {
         allowNull: false,
         primaryKey: true,
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4,
       },
-      userId: {
+      quotationProductId: {
         allowNull: false,
         type: Sequelize.UUID,
         references: {
-          model: "Users",
+          model: "QuotationProducts",
           key: "id",
         },
         onUpdate: "CASCADE",
@@ -29,26 +28,9 @@ module.exports = {
         onUpdate: "CASCADE",
         onDelete: "CASCADE",
       },
-      action: {
+      unitPrice: {
         allowNull: false,
-        type: Sequelize.STRING,
-      },
-      date: {
-        allowNull: false,
-        type: Sequelize.DATE,
-        defaultValue: Sequelize.NOW,
-      },
-      adminId: {
-        type: Sequelize.UUID,
-        references: {
-          model: "Users",
-          key: "id",
-        },
-        onUpdate: "CASCADE",
-        onDelete: "SET NULL",
-      },
-      description: {
-        type: Sequelize.TEXT,
+        type: Sequelize.DECIMAL,
       },
       createdAt: {
         allowNull: false,
@@ -63,6 +45,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("UserSupplierHistories");
+    await queryInterface.dropTable("QuotationSupplierProducts");
   },
 };

@@ -14,11 +14,13 @@ const searchSupplierProductsBySubcategory = async (req, res) => {
       `
       SELECT
         sp.id AS supplier_product_id,
+        p.id AS producto_id,
         uom.name AS product_unit_of_measure,   
         sp.slug AS supplier_product_slug,
         p.name AS product_name,
         p.description AS product_description,
         i.url AS product_photo,
+        sp."unitOfMeasureId" AS unit_id,
         sp."createdAt" AS created_at,
         (sp."adminAuthorizedId" IS NOT NULL) AS is_authorized  
       FROM
@@ -52,11 +54,13 @@ const searchSupplierProductsBySubcategory = async (req, res) => {
 
     const products = result.map((product) => ({
       id: product.supplier_product_id,
+      productoId: product.producto_id,
       name: product.product_name,
       description: product.product_description,
       slug: product.supplier_product_slug,
       photo: product.product_photo,
       unitOfMeasure: product.product_unit_of_measure,
+      unitId: product.unit_id,
       isAuthorized: product.is_authorized,
     }));
 
@@ -77,9 +81,11 @@ const getRecentSupplierProductsBySubcategory = async (req, res) => {
       `
       SELECT
         sp.id AS supplier_product_id,
+        p.id AS producto_id,
         p.name AS product_name,
         p.description AS product_description,
         uom.name AS unit_of_measure,   
+        sp."unitOfMeasureId" AS unit_id,
         i.url AS product_image,
         sp.slug AS supplier_product_slug,
         (sp."adminAuthorizedId" IS NOT NULL) AS is_authorized   
@@ -108,11 +114,13 @@ const getRecentSupplierProductsBySubcategory = async (req, res) => {
     res.status(200).json({
       data: supplierProducts.map((sp) => ({
         id: sp.supplier_product_id,
+        productoId: sp.producto_id,
         name: sp.product_name,
         description: sp.product_description,
         slug: sp.supplier_product_slug,
         photo: sp.product_image,
         unitOfMeasure: sp.unit_of_measure,
+        unitId: sp.unit_id,
         isAuthorized: sp.is_authorized,
       })),
       count: supplierProducts.length,
@@ -128,16 +136,19 @@ const getRecentSupplierProductsBySubcategory = async (req, res) => {
 
 const getMostQuotedProductsBySubcategory = async (req, res) => {
   const { subcategorySlug } = req.params;
+
   try {
     const result = await sequelize.query(
       `
-      SELECT
+      SELECT DISTINCT ON (p.name, uom.name)
         sp.id AS supplier_product_id,
+        p.id AS producto_id,
         p.name AS product_name,
         sp.slug AS product_slug,
         p.description AS product_description,
         i.url AS product_photo,
-        uom.name AS product_unit_of_measure,  
+        uom.name AS product_unit_of_measure,
+        sp."unitOfMeasureId" AS unit_id,
         COUNT(qp."productId") AS quote_count,
         (sp."adminAuthorizedId" IS NOT NULL) AS is_authorized  
       FROM
@@ -155,9 +166,9 @@ const getMostQuotedProductsBySubcategory = async (req, res) => {
       WHERE
         sc.slug = :subcategorySlug
       GROUP BY
-        sp.id, p.name, sp.slug, p.description, i.url, uom.name  
+        sp.id, p.id, p.name, sp.slug, p.description, i.url, uom.name  
       ORDER BY
-        quote_count DESC
+        p.name, uom.name, quote_count DESC
       LIMIT 10
       `,
       {
@@ -168,11 +179,13 @@ const getMostQuotedProductsBySubcategory = async (req, res) => {
 
     const products = result.map((product) => ({
       id: product.supplier_product_id,
+      productoId: product.producto_id,
       name: product.product_name,
       description: product.product_description,
       slug: product.product_slug,
       photo: product.product_photo,
       unitOfMeasure: product.product_unit_of_measure,
+      unitId: product.unit_id,
       isAuthorized: product.is_authorized,
     }));
 

@@ -36,10 +36,12 @@ const ProductFeature = sequelize.define(
     createdAt: {
       type: DataTypes.DATE,
       allowNull: false,
+      defaultValue: Sequelize.NOW,
     },
     updatedAt: {
       type: DataTypes.DATE,
       allowNull: false,
+      defaultValue: Sequelize.NOW,
     },
   },
   {
@@ -49,6 +51,7 @@ const ProductFeature = sequelize.define(
 );
 
 ProductFeature.belongsTo(Product, { foreignKey: "productId", as: "product" });
+
 ProductFeature.belongsTo(Feature, { foreignKey: "featureId", as: "feature" });
 
 module.exports = ProductFeature;

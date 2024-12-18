@@ -11,4 +11,8 @@ router.post(
   Carrito.addQuotationSupplierProducts
 );
 
+router.get("/suppliers", Carrito.getSuppliers);
+
+router.post("/suppliers-with-products", Carrito.getSuppliersWithProducts);
+
 module.exports = router;

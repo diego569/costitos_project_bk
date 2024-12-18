@@ -1,7 +1,6 @@
 const { Sequelize, DataTypes } = require("sequelize");
 const config = require("../../config/config");
 const sequelize = new Sequelize(config.development);
-
 const Subcategory = require("./subcategory");
 
 const Category = sequelize.define(
@@ -20,6 +19,7 @@ const Category = sequelize.define(
     slug: {
       type: DataTypes.STRING,
       allowNull: false,
+      unique: true,
     },
     photo: {
       type: DataTypes.STRING,
@@ -28,10 +28,12 @@ const Category = sequelize.define(
     createdAt: {
       type: DataTypes.DATE,
       allowNull: false,
+      defaultValue: Sequelize.NOW,
     },
     updatedAt: {
       type: DataTypes.DATE,
       allowNull: false,
+      defaultValue: Sequelize.NOW,
     },
   },
   {
@@ -40,7 +42,6 @@ const Category = sequelize.define(
   }
 );
 
-// Definir la relación hasMany
 Category.hasMany(Subcategory, {
   foreignKey: "categoryId",
   as: "subcategories",
