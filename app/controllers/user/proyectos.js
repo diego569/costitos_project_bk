@@ -197,7 +197,7 @@ const getQuotationsByArea = async (req, res) => {
         "createdAt",
         "updatedAt",
       ],
-      order: [["createdAt", "ASC"]],
+      order: [["createdAt", "DESC"]],
     });
     res.status(200).json({ success: true, data: quotations });
   } catch (error) {
